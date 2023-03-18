@@ -995,6 +995,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Return a 'merged' BeanDefinition for the given bean name,
 	 * merging a child bean definition with its parent if necessary.
+	 * 对于给定的bean名称，返回一个合并的BeanDefinition，如有必要，将子定义与其父bean合并
 	 * <p>This {@code getMergedBeanDefinition} considers bean definition
 	 * in ancestors as well.
 	 * @param name the name of the bean to retrieve the merged definition for
@@ -1007,10 +1008,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
 		String beanName = transformedBeanName(name);
 		// Efficiently check whether bean definition exists in this factory.
+		// 有效检查该工厂是否存在bean定义
 		if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
 			return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName);
 		}
 		// Resolve merged bean definition locally.
+		// 在本地解析合并bean definition
 		return getMergedLocalBeanDefinition(beanName);
 	}
 
@@ -1244,10 +1247,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Return a RootBeanDefinition for the given bean, by merging with the
 	 * parent if the given bean's definition is a child bean definition.
-	 * @param beanName the name of the bean definition
-	 * @param bd the original bean definition (Root/ChildBeanDefinition)
+	 * 如果该bean的定义是一个子bean定义，则通过与父bean合并，返回一个RootBeanDefinition
+	 * @param beanName the name of the bean definition 给bean定义的名称
+	 * @param bd the original bean definition (Root/ChildBeanDefinition) 最初的bean定义
 	 * @param containingBd the containing bean definition in case of inner bean,
-	 * or {@code null} in case of a top-level bean
+	 * or {@code null} in case of a top-level bean  -null表示最顶层bean definition，不null表示里面的bean definition
 	 * @return a (potentially merged) RootBeanDefinition for the given bean
 	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
 	 */
@@ -1255,26 +1259,34 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			String beanName, BeanDefinition bd, @Nullable BeanDefinition containingBd)
 			throws BeanDefinitionStoreException {
 
+		// 锁定this.mergedBeanDefinitions资源
 		synchronized (this.mergedBeanDefinitions) {
 			RootBeanDefinition mbd = null;
 
 			// Check with full lock now in order to enforce the same merged instance.
-			if (containingBd == null) {
-				mbd = this.mergedBeanDefinitions.get(beanName);
+			if (containingBd == null) { //如果包含的bd==null,表示顶层bd
+				mbd = this.mergedBeanDefinitions.get(beanName); //取出合并的bd
 			}
 
-			if (mbd == null) {
+			if (mbd == null) {//如果合并的bd为null，继续；否则返回mbd
+				// mbd为null,表示该bd不是mbd,获取父bd名称
+				// 父bd为Null
 				if (bd.getParentName() == null) {
 					// Use copy of given root bean definition.
+					// 判断是否mbd
 					if (bd instanceof RootBeanDefinition) {
+						// 是mbd，则clone一份
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
+					// mbd为null，并且父bd为null,则表示此为新的mbd
 					else {
 						mbd = new RootBeanDefinition(bd);
 					}
 				}
+				// 父bd不为null,表示要合并
 				else {
 					// Child bean definition: needs to be merged with parent.
+					// 子 bean definition :需要与父合并
 					BeanDefinition pbd;
 					try {
 						String parentBeanName = transformedBeanName(bd.getParentName());
@@ -1301,6 +1313,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					mbd = new RootBeanDefinition(pbd);
 					mbd.overrideFrom(bd);
 				}
+				// -----------------------------------------------------
 
 				// Set default singleton scope, if not configured before.
 				if (!StringUtils.hasLength(mbd.getScope())) {
