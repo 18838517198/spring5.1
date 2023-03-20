@@ -283,6 +283,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			 */
 			//返回对应的实例，有时候存在诸如BeanFactory的情况并不是直接返回实例本身而是返回指定方法返回的实例
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
+			/*
+			  在getBean方法中，getObjectForBeanInstance是一个高频使用的方法，无论是
+			  从缓存中获得bean还是根据不同的scope加载策略加载bean.总之，我们得到bean实例后
+			  要做的第一件事就是调用这个方法检测一下正确性，其实就是用于检测当前bean是否是FactoryBean
+			  类型的bean。如果是，那么需要调用该bean对应的FactoryBean实例中的getObject()作为返回值。
+			  因为无论从缓存中获取到的bean还是通过不容的scope策略加载的bean都只是最原始的bean状态，并不
+			  一定是我们最终想要的bean。举个例子，假如需要对工厂bean进行处理，那么这里得到的其实是工厂bean
+			  的初始状态，但是我们真正需要的是工厂bean中定义的factory-method方法中返回的bean。而
+			  getObjectForBeanInstance方法就是完成这个工作的。
+			 */
 		}
 
 		else {
@@ -1729,6 +1739,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
+		//如果指定的name是工厂相关（以&为前缀）且beanInstance又不是FactoryBean类型则验证不通过
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
@@ -1741,21 +1752,33 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		/*
+		  现在我们有了个bean的实例，这个实例可能会是正常的bean或者是FactoryBean
+		  如果是FactoryBean我们使用它创建实例，但是如果用户想要直接获取工厂实例而不是工厂的
+		  getObject方法对应的实例那么传入的name应该加入前缀&
+		 */
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
+		//加载FactoryBean
 		Object object = null;
 		if (mbd == null) {
+			//尝试从缓存中加载bean
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {
 			// Return bean instance from factory.
+			//到这里已经明确知道beanInstance一定是FactoryBean类型
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
 			// Caches object obtained from FactoryBean if it is a singleton.
+			//containsBeanDefinition检测beanDefinitionMap中也就是在所有已经加载的类中检测是否定义的beanName
 			if (mbd == null && containsBeanDefinition(beanName)) {
+				//将存储XML配置文件的GenericBeanDefinition转换为RootBeanDefinition，如果
+				//指定BeanName是子Bean的话同时合并父类的相关属性
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
+			//是否是用户定义的而不是应用程序本身定义的
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
