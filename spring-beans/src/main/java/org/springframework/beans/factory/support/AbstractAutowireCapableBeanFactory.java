@@ -424,6 +424,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			throws BeansException {
 
 		Object result = existingBean;
+		/*
+		  Spring获取bean的规则中有这样一条:尽可能保证所有bean初始化后都会调用注册的BeanPostProcessor的
+		  PostProcessAfterInitialization方法进行处理，在实际开发过程中大可以针对此特性设计自己的业务逻辑。
+		 */
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
 			Object current = processor.postProcessAfterInitialization(result, beanName);
 			if (current == null) {
