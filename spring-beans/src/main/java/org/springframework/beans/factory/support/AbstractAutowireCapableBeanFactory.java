@@ -487,6 +487,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
 		// which cannot be stored in the shared merged bean definition.
+		/*
+		  锁定class，根据设置的class属性或者根据className来解析Class
+		 */
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
 			mbdToUse = new RootBeanDefinition(mbd);
@@ -494,6 +497,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Prepare method overrides.
+		// 验证及准备覆盖的方法
+		/*
+		  Spring配置中是存在lookup-method和replace-method的，而这两个配置的加载其实就是将配置统一存放
+		  在BeanDefinition中的methodOverrides属性里，而这个函数的操作其实也就是针对这两个配置的。
+		 */
 		try {
 			mbdToUse.prepareMethodOverrides();
 		}
@@ -504,7 +512,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			// 给BeanPostProcessors一个机会来返回代理来替代真正的实例
+			/*
+			  应用初始化前的后置处理器，解析指定bean是否存在初始化前的短路操作
+			 */
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+			//我们熟知的AOP功能就是基于这里判断的
 			if (bean != null) {
 				return bean;
 			}
@@ -1091,12 +1104,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	@Nullable
 	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
 		Object bean = null;
+		//如果尚未被解析
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
 			// Make sure bean class is actually resolved at this point.
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
+					/*
+					  Spring中的规则是在bean的初始化后尽可能保证将注册的后置处理器的postProcessAfterInitialization
+					  方法应用到该bean中，因为如果返回的bean不为空，那么便不会再次经历普通bean的创建过程。所以只能在这里应用
+					  后置处理器的postProcessAfterInitialization方法
+					 */
 					if (bean != null) {
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
