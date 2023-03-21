@@ -599,6 +599,27 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			/*
+			  对于setter注入造成的依赖是通过Spring容器提前暴露刚完成构造器注入但未完成其他步骤(如setter注入)的bean
+			  完成的，而且只能解决单例作用域的bean循环依赖。通过提前暴露一个单例工厂方法，从而使其他bean能够引用到该bean。
+			  如下代码所示:
+			  addSingletonFactory(beanName,new ObjectFactory(){
+			     public Object getObject() throws BeansException(){
+			        return getEarlyBeanReference(beanName,mbd,bean);
+			     }
+			  })
+			  ---->假设A,B形成循环依赖(setter)
+			  具体步骤如下：
+			  1.Spring容器创建单例A，首先根据无参构造器创建bean，并暴露一个ObjectFactory，用于返回一个提前暴露
+			  一个创建中的bean，并将A 标识符放到“当前创建bean池”，然后进行setter注入B
+			  2.Spring容器创建单例B，首先根据无参构造器创建bean，并暴露一个ObjectFactory，用于返回一个提前暴露
+			  一个创建中的bean，并将B 标识符放到“当前创建bean池”，然后进行setter注入A。进行注入A时由于提前暴露了
+			  ObjectFactory工厂，从而使用它返回提前暴露一个创建的bean。
+			  3.最后再依赖注入B,完成setter注入。
+
+			  对于prototype作用域bean，Spring容器无法完成依赖注入，因为Spring容器不进行缓存prototype作用域的bean，
+			  因此无法提前暴露一个创建中的bean。
+			 */
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
