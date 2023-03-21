@@ -1,0 +1,3 @@
+BeanPostProcessor相信大家都不陌生，这是Spring中开放式架构中一个必不可少的亮点，
+给用户充足的权限去更改或者扩展Spring，而除了BeanPostProcessor外还有很多其他的
+PostProcessor，当然大部分都是以此为基础，继承自BeanPostProcessor。

@@ -1850,6 +1850,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
 			//应用后置处理器
+			/*
+			  ！！！BeanPostProcessor的使用位置就是这里，在调用客户自定义初始化方法前
+			  以及调用自定义初始化方法后分别调用BeanPostProcessor的PostProcessorBeforeInitialization
+			  和PostProcessorAfterInitialization
+			 */
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 
@@ -1907,6 +1912,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected void invokeInitMethods(String beanName, Object bean, @Nullable RootBeanDefinition mbd)
 			throws Throwable {
 
+		/*
+		  客户定制的初始化方法除了我们熟知的使用配置init-method外，还有使用自定义的bean实现InitializingBean接口，
+		  并在afterPropertiesSet中实现自己的初始化业务逻辑。
+		  init-method与afterPropertiesSet都是在初始化bean时执行，执行顺序时afterPropertiesSet先执行，而
+		  init-method后执行。
+		 */
 		boolean isInitializingBean = (bean instanceof InitializingBean);
 		if (isInitializingBean && (mbd == null || !mbd.isExternallyManagedInitMethod("afterPropertiesSet"))) {
 			if (logger.isTraceEnabled()) {
