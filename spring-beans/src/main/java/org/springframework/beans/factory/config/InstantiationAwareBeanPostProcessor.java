@@ -46,6 +46,11 @@ import org.springframework.lang.Nullable;
  */
 public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
+	/*
+	  利用实例化前postProcessBeforeInstantiation，实例化后postProcessAfterInstantiation，肯定会帮我们
+	  实现对应的一些后置处理器的相关方法，来辅助我们在某个时间节点上完成代理这一项工作。针对Spring它的接口，我们写几个实现类注到容器里面，
+	  不是我们主动调用,而是由容器去调用。
+	 */
 	/**
 	 * Apply this BeanPostProcessor <i>before the target bean gets instantiated</i>.
 	 * The returned bean object may be a proxy to use instead of the target bean,

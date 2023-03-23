@@ -92,6 +92,15 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("serial")
 public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		implements SmartInstantiationAwareBeanPostProcessor, BeanFactoryAware {
+	/*
+	  我们都知道，我们Spring提供了非常多非常多非常多扩展点，我们很多扩展性功能都需要基于spring
+	  DI(dependency injection)容器的引导过程提供的扩展点，在那个时间点，能做什么样的事情，咱们的
+	  DI容器已经给我们决定了。我们要做的就是，在扩展点上扩展我们想要的内容。
+	  比如AbstractAutoProxyCreator这个抽象类，对于这个抽象类的子类，它们如果被注册到容器当中，一定
+	  会被执行对应一些扩展点的方法，因为它实现了SmartInstantiationAwareBeanPostProcessor。
+	  定义了实例化前，实例化后，初始化前，初始化后，也就意味着极有可能在这四个阶段，我们会有产生代理的机会
+	  和时机。
+	 */
 
 	/**
 	 * Convenience constant for subclasses: Return value for "do not proxy".
@@ -240,6 +249,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
+	// 实例化前postProcess
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
 		Object cacheKey = getCacheKey(beanClass, beanName);
@@ -263,6 +273,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				this.targetSourcedBeans.add(beanName);
 			}
 			Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+			/*
+			  连实例化都没实例化，那么为什么要给我做代理？这就是Spring。你可以不用，但Spring必须支持。
+			  你可以定义一个新的代理的过程，新的实例化创建bean的过程，去拦截住整个创建的过程。在你正式的
+			  实例化前，你就可以通过这个方式，生成你的代理，而不去走Spring给我们提供的实例化属性填充和代理
+			  相关工作。
+			 */
 			Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
@@ -270,7 +286,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		return null;
 	}
-
+	// 实例化前postProcess
 	@Override
 	public boolean postProcessAfterInstantiation(Object bean, String beanName) {
 		return true;
@@ -281,6 +297,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return pvs;
 	}
 
+	// 初始化前postProcess
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) {
 		return bean;
@@ -307,6 +324,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			result = current;
 		}
 	  ----------------------------
+	 */
+	// 初始化后postProcess
+	/*
+	  我们应该了解，对于我们Spring来说，主要是给我们提供了DI容器，或者IOC容器，一个容器，而对于AOP而言，
+	  仅仅是在其扩展点上发展出来的一个扩展。
 	 */
 	@Override
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
@@ -355,7 +377,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
-		// 无需增强
+		// 无需增强 增强器:advisor
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
@@ -374,6 +396,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			// 创建代理
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+			// 做一个缓存
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
