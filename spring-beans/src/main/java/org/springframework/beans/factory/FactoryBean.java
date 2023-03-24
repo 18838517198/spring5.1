@@ -63,6 +63,30 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.jndi.JndiObjectFactoryBean
  */
 public interface FactoryBean<T> {
+	/*
+	  将来在容器里面注入了一个bean，如果这个bean实现了FactoryBean接口，它不仅仅会将FactoryBean注册到容器当中，
+	  还会将getObject返回的Bean也注册到容器当中。获取FactoryBean的时候，需要加"&"表示工厂bean,而获取getObject的Bean时，
+	  才是真正需要的bean。
+	  FactoryBean是工厂Bean，通常用来帮我们创建复杂对象，屏蔽复杂对象过程，能将getObject返回结果当作一个bean，默认是单例的，
+	  注入到容器当中。
+	  如:
+	    SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>
+	    那么SqlSessionFactoryBean就实现了getObject()方法。在getObject()里面创建了一个
+	    很复杂的对象。这个很复杂的过程我们又不可能处理它，不可能让我们生成。所以就会使用getObject()方法，
+	    SqlSessionFactoryBean:
+	    @Override
+	    public SqlSessionFactory getObject() throws Exception{
+	      if(this.sqlSessionFactory == null){
+	        // 做一些配置，设置，构建逻辑极其复杂，只不过它给我们屏蔽了。
+	        afterPropertiesSet();
+	      }
+	      // 最后把这个sqlSession工厂给返回
+	      return this.sqlSessionFactory;
+	    }
+	    我们以后注入的时候，就用SqlSessionFactoryBean注入，屏蔽了复杂性。
+	    当我们使用很复杂的对象的时候，我们可以使用FactoryBean,集成好,其他人用的时候直接用就可以了。
+	    有了SqlSessionFactoryBean之后，我们就可以获取SqlSessionFactory bean了。
+	 */
 
 	/**
 	 * Return an instance (possibly shared or independent) of the object
