@@ -512,12 +512,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			// 给BeanPostProcessors一个机会来返回代理来替代真正的实例
+			// 给BeanPostProcessors一个机会来返回代理，去替代目标的实例。
 			/*
 			  应用初始化前的后置处理器，解析指定bean是否存在初始化前的短路操作
+			  意味着一旦在这个阶段通过我们的自定义的方式实现了一个目标代理，把之前的bean实例替换掉，也就返回了。
+			  它就不会再走doCreateBean()以及相关的逻辑。
+			  [AOP在bean实例化之前做实例化之前和初始化之后的代理]
 			 */
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
-			//我们熟知的AOP功能就是基于这里判断的
+			//我们熟知的AOP功能切入之一就是基于这里判断的
 			if (bean != null) {
 				return bean;
 			}
@@ -528,6 +531,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			// 这一行真正的实例化属性填充初始化
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Finished creating instance of bean '" + beanName + "'");
