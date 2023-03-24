@@ -164,6 +164,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	/** Cache of filtered PropertyDescriptors: bean Class to PropertyDescriptor array. */
 	private final ConcurrentMap<Class<?>, PropertyDescriptor[]> filteredPropertyDescriptorsCache =
 			new ConcurrentHashMap<>();
+	private InstantiationAwareBeanPostProcessor ibp;
 
 
 	/**
@@ -1165,6 +1166,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					  后置处理器的postProcessAfterInitialization方法
 					 */
 					if (bean != null) {
+						// 如果bean不为空，则表示bean经过代理之后，已经初始化。则调用初始化后的postProcessor
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
 				}
@@ -1190,6 +1192,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		for (BeanPostProcessor bp : getBeanPostProcessors()) {
 			if (bp instanceof InstantiationAwareBeanPostProcessor) {
 				InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+				/*
+				  调用InstantiationAwareBeanPostProcessor的实例化之前后置处理
+				  由于AbstractAutoProxyCreator也间接实现了InstantiationAwareBeanPostProcessor接口，
+				  所以会调用AbstractAutoProxyCreator的postProcessBeforeInstantiation实现。
+				  而AbstractAutoProxyCreator的具体实现类是AnnotationAwareAspectJAutoProxyCreator。
+				  @EnableAspectJAutoProxy注解作用是向Spring容器中注入AnnotationAwareAspectJAutoProxyCreator这个组件。
+				  @EnableAspectJAutoProxy正是开启AOP功能的注解
+				  所以此处会调用实现了AOP功能关键注解组件AnnotationAwareAspectJAutoProxyCreator的
+				  postProcessorBeforeInstantiation方法。
+				  所以此处会是调用AOP代理功能的第一处，[在bean的实例化之前]。
+				 */
 				Object result = ibp.postProcessBeforeInstantiation(beanClass, beanName);
 				if (result != null) {
 					return result;

@@ -26,6 +26,8 @@ import org.springframework.lang.Nullable;
  * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
  * and a callback after instantiation but before explicit properties are set or
  * autowiring occurs.
+ * InstantiationAwareBeanPostProcessor是BeanPostProcessor的子接口，增加了一个before-instantiation的回调，
+ * 和一个初始化后回调。但这个初始化后回调会在显式属性设置或自动装配之前发生。
  *
  * <p>Typically used to suppress default instantiation for specific target beans,
  * for example to create proxies with special TargetSources (pooling targets,
@@ -75,6 +77,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getBeanClass()
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getFactoryMethodName()
 	 */
+	// 在实例化之前后置处理
 	@Nullable
 	default Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
 		return null;
