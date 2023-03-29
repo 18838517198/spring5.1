@@ -40,6 +40,7 @@ import org.springframework.util.MultiValueMap;
 
 /**
  * Internal class used to evaluate {@link Conditional} annotations.
+ * 内部类，用来计算@Conditional注解。
  *
  * @author Phillip Webb
  * @author Juergen Hoeller

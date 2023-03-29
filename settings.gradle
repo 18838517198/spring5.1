@@ -31,4 +31,5 @@ rootProject.children.each {project ->
 }
 include 'spring-debug-demo'
 include 'spring-web-debug'
+include 'spring-web-debug-xml'
 

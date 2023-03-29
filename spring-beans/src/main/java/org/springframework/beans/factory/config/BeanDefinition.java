@@ -77,6 +77,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * used when registering beans that are completely part of the internal workings
 	 * of a {@link org.springframework.beans.factory.parsing.ComponentDefinition}.
 	 */
+	// 角色_基础设施
 	int ROLE_INFRASTRUCTURE = 2;
 
 

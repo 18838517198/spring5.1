@@ -83,6 +83,9 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * @param componentClasses one or more component classes &mdash; for example,
 	 * {@link Configuration @Configuration} classes
 	 */
+	/*
+	  创建一个新的ApplicationConfigApplicationContext,从给定的组件派生bean定义，并自动刷新上下文。
+	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
 		this();
 		register(componentClasses);
