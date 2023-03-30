@@ -63,6 +63,7 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
 
 	/**
 	 * Return the bean instance wrapped by this object.
+	 * 返回被此对象包装的bean实例
 	 */
 	Object getWrappedInstance();
 

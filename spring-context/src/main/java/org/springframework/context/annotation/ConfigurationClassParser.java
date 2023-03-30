@@ -85,7 +85,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 /**
- * Parses a {@link Configuration} class definition, populating a collection of
+ * Parses a {@link Configuration} class definition,
+ * 解析一个Configuration 类定义
+ * populating a collection of
  * {@link ConfigurationClass} objects (parsing a single Configuration class may result in
  * any number of ConfigurationClass objects because one Configuration class may import
  * another using the {@link Import} annotation).
