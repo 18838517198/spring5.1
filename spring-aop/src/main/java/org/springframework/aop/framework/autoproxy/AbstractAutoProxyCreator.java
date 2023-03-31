@@ -93,11 +93,12 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		implements SmartInstantiationAwareBeanPostProcessor, BeanFactoryAware {
 	/*
+	  !!!
 	  我们都知道，我们Spring提供了非常多非常多非常多扩展点，我们很多扩展性功能都需要基于spring
 	  DI(dependency injection)容器的引导过程提供的扩展点，在那个时间点，能做什么样的事情，咱们的
 	  DI容器已经给我们决定了。我们要做的就是，在扩展点上扩展我们想要的内容。
 	  比如AbstractAutoProxyCreator这个抽象类，对于这个抽象类的子类，它们如果被注册到容器当中，一定
-	  会被执行对应一些扩展点的方法，因为它实现了SmartInstantiationAwareBeanPostProcessor。
+	  会被执行对应一些扩展点的方法，因为它(AbstractAutoProxyCreator)实现了SmartInstantiationAwareBeanPostProcessor。
 	  定义了实例化前，实例化后，初始化前，初始化后，也就意味着极有可能在这四个阶段，我们会有产生代理的机会
 	  和时机。
 	 */
@@ -249,7 +250,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
-	// 实例化前postProcess
+	// --实例化前postProcess
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
 		Object cacheKey = getCacheKey(beanClass, beanName);
@@ -265,6 +266,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		}
 
 		// Create proxy here if we have a custom TargetSource.
+		// 在这里创建代理，如果我们有一个自定义的TargetSource.
 		// Suppresses unnecessary default instantiation of the target bean:
 		// The TargetSource will handle target instances in a custom fashion.
 		TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
@@ -286,7 +288,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		return null;
 	}
-	// 实例化前postProcess
+	// 实例化后postProcess_没做处理
 	@Override
 	public boolean postProcessAfterInstantiation(Object bean, String beanName) {
 		return true;
@@ -297,7 +299,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return pvs;
 	}
 
-	// 初始化前postProcess
+	// 初始化前postProcess_没做处理
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) {
 		return bean;
@@ -325,7 +327,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		}
 	  ----------------------------
 	 */
-	// 初始化后postProcess
+	// --初始化后postProcess
 	/*
 	  我们应该了解，对于我们Spring来说，主要是给我们提供了DI容器，或者IOC容器，一个容器，而对于AOP而言，
 	  仅仅是在其扩展点上发展出来的一个扩展。

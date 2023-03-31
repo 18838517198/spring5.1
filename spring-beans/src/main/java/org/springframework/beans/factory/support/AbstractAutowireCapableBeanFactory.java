@@ -725,6 +725,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/**
 	 * Determine the target type for the given bean definition.
+	 * 确定给定bean定义的目标类型
 	 * @param beanName the name of the bean (for error handling purposes)
 	 * @param mbd the merged bean definition for the bean
 	 * @param typesToMatch the types to match in case of internal type matching purposes
@@ -1154,10 +1155,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
 		Object bean = null;
 		//如果尚未被解析
-		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
+		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) { //实例化之前后置处理器已经启动，表示此bean需要被实例化之前处理
 			// Make sure bean class is actually resolved at this point.
-			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {//对所有自定义的bean扫描，并且有InstantiationAwarePostProcessor
 				Class<?> targetType = determineTargetType(beanName, mbd);
+				// 如果目标类型不为nll
 				if (targetType != null) {
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					/*

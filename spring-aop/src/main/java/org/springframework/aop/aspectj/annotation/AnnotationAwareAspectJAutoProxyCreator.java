@@ -102,7 +102,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 		// Build Advisors for all AspectJ aspects in the bean factory.
 		if (this.aspectJAdvisorsBuilder != null) {
 			/*
-			  AnnotationAwareAspectJAutoProxyCreator简介继承了AbstractAdvisorAutoProxyCreator，
+			  AnnotationAwareAspectJAutoProxyCreator间接继承了AbstractAdvisorAutoProxyCreator，
 			  在实现获取增强的方法中除了保留父类的获取配置文件中定义的增强外，同时添加了获取
 			  Bean的注解增强的功能，那么其实现正是由this.aspectJAdvisorBuilder.buildAspectJAdvisors()
 			  来实现的。
