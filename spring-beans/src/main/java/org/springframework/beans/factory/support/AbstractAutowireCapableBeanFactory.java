@@ -628,6 +628,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			  对于prototype作用域bean，Spring容器无法完成依赖注入，因为Spring容器不进行缓存prototype作用域的bean，
 			  因此无法提前暴露一个创建中的bean。
 			 */
+			// 在这里，可能会有代理Bean，getEarlyBeanReference，此方法在AbstractAutoProxyCreator有实现。
+			// 如果直接把原始Bean暴露出去，那么代理Bean就不生效了。
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -641,6 +643,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			/*
 			  调用初始化方法，比如init-method
 			 */
+			// 在这个地方也可能会生成代理。如果上面生成代理，这里就不生成了。
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1549,6 +1552,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
 		for (String propertyName : propertyNames) {
 			if (containsBean(propertyName)) {
+				// 实例化属性Bean
 				Object bean = getBean(propertyName);
 				pvs.add(propertyName, bean);
 				registerDependentBean(propertyName, beanName);

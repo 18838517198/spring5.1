@@ -227,26 +227,37 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Return an instance, which may be shared or independent, of the specified bean.
+	 * 返回一个实例，这个指定的bean，可能是共享的或独立的。
 	 * @param name the name of the bean to retrieve
+	 *             检索的bean的名字
 	 * @param requiredType the required type of the bean to retrieve
+	 *                     需要检索的bean的类型
 	 * @param args arguments to use when creating a bean instance using explicit arguments
+	 *             在使用显式参数创建bean实例时使用的参数
 	 * (only applied when creating a new instance as opposed to retrieving an existing one)
+	 *             仅仅适用于当创建一个新的实例而不是检索一个已经存在的实例
 	 * @param typeCheckOnly whether the instance is obtained for a type check,
 	 * not for actual use
+	 *                      实例是否用于类型检查，而不是实际使用
 	 * @return an instance of the bean
+	 * 返回: 一个bean的实例
 	 * @throws BeansException if the bean could not be created
+	 * 抛出: BeansException 如果bean没有被创建
 	 */
+	// public 表示在任意位置都可以访问
+	// protected 表示只能在同包，子类，本类中访问。
+	// private 表示只能在本类中访问。
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
-		//提取对应的beanName
 		/*
 		  传入的参数可能是别名，也可能是FactoryBean,所以需要进行一系列的解析：
 		  去除FactoryBean的修饰符，也就是如果name="&aa",那么会首先去除&而使name="aa"。
 		  取指定alias所表示的最终beanName，例如别名A指向名称为B的bean则返回B;若别名A指向别名B，别名B又指向名称为C的bean则返回C。
 		 */
+		// 获取实际的beanName
 		String beanName = transformedBeanName(name);
 		Object bean;
 
@@ -1216,10 +1227,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Return the bean name, stripping out the factory dereference prefix if necessary,
 	 * and resolving aliases to canonical names.
+	 * 返回该bean的名字，如有必要，去掉工厂解引用前缀，并将别名解析为规范名称。
 	 * @param name the user-specified name
+	 *             用户指定的名字
 	 * @return the transformed bean name
+	 * 返回: 转换后的bean名字
 	 */
 	protected String transformedBeanName(String name) {
+		// BeanFactoryUtils.transformedBeanName(name)作用: 返回一个不带&的name
 		return canonicalName(BeanFactoryUtils.transformedBeanName(name));
 	}
 
