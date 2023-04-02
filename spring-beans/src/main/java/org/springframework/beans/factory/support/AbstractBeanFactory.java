@@ -168,6 +168,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
 
 	/** Names of beans that have already been created at least once. */
+	// 已经至少创建过一次的bean的名称。
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
 	/** Names of beans that are currently in creation. */
@@ -307,50 +308,60 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			  getObjectForBeanInstance方法就是完成这个工作的。
 			 */
 		}
-
+		// 如果缓存中没有。（一二三级缓存都无，表示刚刚开始创建）
 		else {
-			// Fail if we're already creating this bean instance:
-			// We're assumably within a circular reference.
+
 			/*
 			  只有在单例情况才会尝试解决循环依赖，原型模式情况下，如果存在
 			  A中有B的属性，B中有A的属性，那么当依赖注入的时候，就会产生当A还未创建完的时候
 			  因为对于B的创建再次返回创建A，造成循环依赖，也就是下面的情况
 			 */
-			if (isPrototypeCurrentlyInCreation(beanName)) {
+
+			// Fail if we're already creating this bean instance:
+			// We're assumably within a circular reference.
+			// 如果我们已经创建了这个bean实例，则失败:我们假定处于循环引用中。
+			if (isPrototypeCurrentlyInCreation(beanName)) { // 判断此原型bean是否在创建中，是则抛出BeanCurrentlyInCreationException异常
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
 			// Check if bean definition exists in this factory.
+			// 检查是否在这个工厂中存在bean定义   得到父BeanFactory
 			BeanFactory parentBeanFactory = getParentBeanFactory();
-			/*
-			  如果beanDefinitionMap中也就是在所有已经加载的类中不包括beanName则尝试从parentBeanFactory中检测
-			 */
+
+			// 如果父BeanFactory不为null,并且此工厂不包含此BeanDefinition
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.
+				// 没有发现 -> 检查父工厂
+
+				// 找到原始bean
 				String nameToLookup = originalBeanName(name);
+				// 交给父BeanFactory去创建并返回
 				if (parentBeanFactory instanceof AbstractBeanFactory) {
 					return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
 							nameToLookup, requiredType, args, typeCheckOnly);
 				}
-				// 递归到BeanFactory中寻找
-				else if (args != null) {
+				// 如果不是AbstractBeanFactory，表明有其他实现
+				else if (args != null) { // 参数不为空
 					// Delegation to parent with explicit args.
+					// 通过显式参数委托给父对象。
 					return (T) parentBeanFactory.getBean(nameToLookup, args);
 				}
-				else if (requiredType != null) {
+				else if (requiredType != null) { // 参数为null，但是所需类型不为null
 					// No args -> delegate to standard getBean method.
+					// 空参 -> 委托给标准的getBean方法。
 					return parentBeanFactory.getBean(nameToLookup, requiredType);
 				}
-				else {
+				else { // 参数为空，所需类型也为空
 					return (T) parentBeanFactory.getBean(nameToLookup);
 				}
 			}
 
-			//如果不是仅仅做类型检查而是创建bean，这里要进行记录
+			// 如果不是仅仅做类型检查而是创建bean，这里要进行记录
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}
 
+			// ---------探究中-------
 			try {
 				/*
 				  因为从XML配置文件中读取到的bean信息是存储在GenericBeanDefinition中的，但是足有的bean
@@ -1132,8 +1143,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Return whether the specified prototype bean is currently in creation
+	 * 返回指定的原型bean当前是否正在创建中
 	 * (within the current thread).
+	 * （在当前线程中）
 	 * @param beanName the name of the bean
+	 *                 bean的名称
 	 */
 	protected boolean isPrototypeCurrentlyInCreation(String beanName) {
 		Object curVal = this.prototypesCurrentlyInCreation.get();
@@ -1241,11 +1255,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Determine the original bean name, resolving locally defined aliases to canonical names.
+	 * 确定原始bean名称，将本地定义的别名解析为规范名称。
 	 * @param name the user-specified name
+	 *             用户指定名称
 	 * @return the original bean name
+	 * 返回: 原始bean名称
 	 */
 	protected String originalBeanName(String name) {
 		String beanName = transformedBeanName(name);
+		// 如果name以&开头，则加上&
 		if (name.startsWith(FACTORY_BEAN_PREFIX)) {
 			beanName = FACTORY_BEAN_PREFIX + beanName;
 		}
@@ -1455,7 +1473,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Remove the merged bean definition for the specified bean,
 	 * recreating it on next access.
+	 * 删除指定bean的合并bean定义，在下次访问时重新创建它。
 	 * @param beanName the bean name to clear the merged definition for
+	 *                 清除bean名称的合并定义
 	 */
 	protected void clearMergedBeanDefinition(String beanName) {
 		this.mergedBeanDefinitions.remove(beanName);
@@ -1682,17 +1702,25 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Mark the specified bean as already created (or about to be created).
+	 * 将指定的bean标记为已经创建(或即将创建)。
 	 * <p>This allows the bean factory to optimize its caching for repeated
 	 * creation of the specified bean.
+	 * 这允许bean工厂优化其缓存以重复创建指定的bean。
 	 * @param beanName the name of the bean
+	 *                 bean名称
 	 */
 	protected void markBeanAsCreated(String beanName) {
+		// 如果没有创建过该bean
 		if (!this.alreadyCreated.contains(beanName)) {
-			synchronized (this.mergedBeanDefinitions) {
+			synchronized (this.mergedBeanDefinitions) {  // 双重检查锁
 				if (!this.alreadyCreated.contains(beanName)) {
 					// Let the bean definition get re-merged now that we're actually creating
 					// the bean... just in case some of its metadata changed in the meantime.
+					// 现在让bean定义重新合并，因为我们实际上正在创建bean……以防它的元数据同时发生变化。
+					// 清除合并定义信息
 					clearMergedBeanDefinition(beanName);
+
+					// 放入alreadyCreated的Set集合
 					this.alreadyCreated.add(beanName);
 				}
 			}
@@ -1877,16 +1905,32 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Check if this bean factory contains a bean definition with the given name.
+	 * 检查此bean工厂是否包含具有给定名称的bean定义。
 	 * Does not consider any hierarchy this factory may participate in.
+	 * 不考虑此工厂可能参与的任何层次结构。
 	 * Invoked by {@code containsBean} when no cached singleton instance is found.
+	 * 当没有发现缓存的单例实例时，由{@code containsBean}调用。
 	 * <p>Depending on the nature of the concrete bean factory implementation,
-	 * this operation might be expensive (for example, because of directory lookups
-	 * in external registries). However, for listable bean factories, this usually
-	 * just amounts to a local hash lookup: The operation is therefore part of the
-	 * public interface there. The same implementation can serve for both this
+	 * 根据具体bean工厂实现的性质，
+	 * this operation might be expensive
+	 * 这个操作可能会耗费性能。
+	 * (for example, because of directory lookups
+	 * in external registries).
+	 * （例如，由于外部注册中心中的目录查找）
+	 * However, for listable bean factories, this usually
+	 * just amounts to a local hash lookup:
+	 * 然而，对于listable bean工厂，这通常只相当于一个本地哈希查找:
+	 * The operation is therefore part of the
+	 * public interface there.
+	 * 因此，该操作是公共接口的一部分。
+	 * The same implementation can serve for both this
 	 * template method and the public interface method in that case.
+	 * 相同的实现可以同时满足这两种需求
+	 * 模板方法和公共接口方法。
 	 * @param beanName the name of the bean to look for
+	 *                 要查找的bean的名称
 	 * @return if this bean factory contains a bean definition with the given name
+	 * 返回: 如果此bean工厂包含具有给定名称的bean定义
 	 * @see #containsBean
 	 * @see org.springframework.beans.factory.ListableBeanFactory#containsBeanDefinition
 	 */
