@@ -268,8 +268,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		 * 创建bean的原则是不等bean创建完成就会将创建bean的ObjectFactory提早曝光加入到缓存中，一旦
 		 * 下一个bean创建的时候需要依赖上一个bean则直接使用ObjectFactory
 		 */
-		// Eagerly check singleton cache for manually registered singletons.
-		// 直接尝试从缓存获取或者singleFactories中的ObjectFactory中获取
 		/*
 		   检查缓存中或者实例工厂中是否有对应的实例
 		   为什么首先会使用这段代码呢
@@ -277,7 +275,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		   Spring创建bean的原则是不等bean创建完成就会将创建的bean的ObjectFactory提早曝光
 		   也就是将ObjectFactory加入到缓存中，一旦下个bean创建时候需要依赖上个bean则直接使用ObjectFactory
 		 */
+		// Eagerly check singleton cache for manually registered singletons.
+		// 急切地检查单例缓存用于手动注册单例
 		Object sharedInstance = getSingleton(beanName);
+
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
 				if (isSingletonCurrentlyInCreation(beanName)) {
