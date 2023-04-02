@@ -276,7 +276,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		   也就是将ObjectFactory加入到缓存中，一旦下个bean创建时候需要依赖上个bean则直接使用ObjectFactory
 		 */
 		// Eagerly check singleton cache for manually registered singletons.
-		// 急切地检查单例缓存用于手动注册单例
+		// 急切地检查单例缓存用于手动注册单例【：依次检查一二三级缓存，有或无则直接返回。其中三级缓存(存放ObjectFactory)存在时，则从工厂bean取出singletonObject后放入二级缓存】
 		Object sharedInstance = getSingleton(beanName);
 
 		if (sharedInstance != null && args == null) {
