@@ -415,9 +415,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				  request之类的。在这个步骤中，Spring会根据不同的配置进行不同的初始化策略。
 				 */
 				// Create bean instance.
-				//实例化依赖的bean后便可以实例化mdb本身了
-				//singleton模式的创建
+
+				// singleton模式
 				if (mbd.isSingleton()) {
+
+					// getSingleton(String beanName,ObjectFactory<?> singletonFactory)
+					// ObjectFactory SPI 由服务消费端提供的接口服务，但是按照服务端所指定的接口
+					// 这里调用lamda表达式，创建一个工厂，返回的是创建的Bean，()表无参，返回的是CreateBean，创建Bean过程在createBean中。
+					// 这里是懒创建，只有在工厂的getObject方法被调用时，才执行createBean,返回一个Bean实例。这里的lamda表达式只是一个构造方法所提供的对象。
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							return createBean(beanName, mbd, args);
@@ -433,6 +438,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
+				// prototype模式
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					// prototype模式的创建
@@ -447,6 +453,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
+				// 其他模式
 				else {
 					//指定的scope上实例化bean
 					String scopeName = mbd.getScope();
@@ -2023,14 +2030,22 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Create a bean instance for the given merged bean definition (and arguments).
+	 * 为给定的合并bean定义(和参数)创建一个bean实例。
 	 * The bean definition will already have been merged with the parent definition
 	 * in case of a child definition.
+	 * 如果是子定义，bean定义将已经与父定义合并。
 	 * <p>All bean retrieval methods delegate to this method for actual bean creation.
+	 * 所有bean检索方法都委托此方法进行实际的bean创建。
 	 * @param beanName the name of the bean
+	 *                 bean名称
 	 * @param mbd the merged bean definition for the bean
+	 *            bean的合并定义信息
 	 * @param args explicit arguments to use for constructor or factory method invocation
+	 *             用于构造函数或工厂方法调用的显式参数
 	 * @return a new instance of the bean
+	 * 返回: 一个新的bean实例
 	 * @throws BeanCreationException if the bean could not be created
+	 * 抛出: BeanCreationException 如果无法创建bean
 	 */
 	protected abstract Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
 			throws BeanCreationException;
