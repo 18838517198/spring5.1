@@ -494,18 +494,20 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
 		// which cannot be stored in the shared merged bean definition.
+		// 确保此时bean类实际上已解析，并克隆bean定义，以防动态解析的类不能存储在共享合并bean定义中。
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
 			mbdToUse = new RootBeanDefinition(mbd);
 			mbdToUse.setBeanClass(resolvedClass);
 		}
 
-		// Prepare method overrides.
-		// 验证及准备覆盖的方法
+
 		/*
 		  Spring配置中是存在lookup-method和replace-method的，而这两个配置的加载其实就是将配置统一存放
 		  在BeanDefinition中的methodOverrides属性里，而这个函数的操作其实也就是针对这两个配置的。
 		 */
+		// Prepare method overrides.
+		// 验证及准备覆盖的方法
 		try {
 			mbdToUse.prepareMethodOverrides();
 		}
@@ -516,14 +518,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			// 给BeanPostProcessors一个机会来返回代理，去替代目标的实例。
+			// 给BeanPostProcessors一个机会来返回代理Bean，而不是目标Bean的实例。
 			/*
 			  应用初始化前的后置处理器，解析指定bean是否存在初始化前的短路操作
 			  意味着一旦在这个阶段通过我们的自定义的方式实现了一个目标代理，把之前的bean实例替换掉，也就返回了。
 			  它就不会再走doCreateBean()以及相关的逻辑。
-			  [AOP在bean实例化之前做实例化之前和初始化之后的代理]
+			  [AOP在bean实例化之前做 实例化之前 和 初始化之后 的代理]
 			 */
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+
 			//我们熟知的AOP功能切入之一就是基于这里判断的
 			if (bean != null) {
 				return bean;
@@ -733,15 +736,20 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * Determine the target type for the given bean definition.
 	 * 确定给定bean定义的目标类型
 	 * @param beanName the name of the bean (for error handling purposes)
+	 *                 bean名称（用于错误处理）
 	 * @param mbd the merged bean definition for the bean
+	 *            合并的bean定义
 	 * @param typesToMatch the types to match in case of internal type matching purposes
 	 * (also signals that the returned {@code Class} will never be exposed to application code)
+	 *                     在进行内部类型匹配时要匹配的类型
+	 * (也表示返回的{@code class}将永远不会暴露给应用程序代码)
 	 * @return the type for the bean if determinable, or {@code null} otherwise
 	 */
 	@Nullable
 	protected Class<?> determineTargetType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
 		Class<?> targetType = mbd.getTargetType();
 		if (targetType == null) {
+			// 解析bean定义的目标类型
 			targetType = (mbd.getFactoryMethodName() != null ?
 					getTypeForFactoryMethod(beanName, mbd, typesToMatch) :
 					resolveBeanClass(mbd, beanName, typesToMatch));
@@ -1151,19 +1159,37 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
-	 * Apply before-instantiation post-processors, resolving whether there is a
+	 * Apply before-instantiation post-processors,
+	 * 应用 实例化前 的后置处理器
+	 * resolving whether there is a
 	 * before-instantiation shortcut for the specified bean.
+	 * 解析对指定的bean是否有一个 实例化之前 的捷径
 	 * @param beanName the name of the bean
+	 *                 bean名称
 	 * @param mbd the bean definition for the bean
+	 *            bean的定义
 	 * @return the shortcut-determined bean instance, or {@code null} if none
+	 * 返回: 确定是快捷的bean实例，或者null
 	 */
 	@Nullable
 	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
 		Object bean = null;
-		//如果尚未被解析
-		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) { //实例化之前后置处理器已经启动，表示此bean需要被实例化之前处理
+
+		// 实例化之前后置处理器已经启动，表示此bean需要被实例化之前处理
+		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
+
+			/*
+			  BeanPostProcessor 定义了初始化之前（postProcessBeforeInitialization）和初始化之后（postProcessAfterInitialization）的处理器
+			  InstantiationAwareBeanPostProcessor extends BeanPostProcessor 又定义了
+			  实例化之前（postProcessBeforeInstantiation）和实例化之后（postProcessAfterInstantiation）。
+			 */
 			// Make sure bean class is actually resolved at this point.
-			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {//对所有自定义的bean扫描，并且有InstantiationAwarePostProcessor
+			// 确保此时bean类实际上已被解析。
+			// hasInstantiationAwareBeanPostProcessors此工厂注册了InstantiationAwareBeanPostProcessor，所以需要对
+			// bean实例化之前进行处理。
+			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+
+				// 解析目标类型
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				// 如果目标类型不为nll
 				if (targetType != null) {
@@ -1186,18 +1212,30 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/**
 	 * Apply InstantiationAwareBeanPostProcessors to the specified bean definition
-	 * (by class and name), invoking their {@code postProcessBeforeInstantiation} methods.
+	 * 将InstantiationAwareBeanPostProcessors应用到指定的bean定义
+	 * (by class and name),
+	 * (通过类和名称)，
+	 * invoking their {@code postProcessBeforeInstantiation} methods.
+	 * 调用它们的postProcessBeforeInstantiation方法（实例化前后置处理）
 	 * <p>Any returned object will be used as the bean instead of actually instantiating
-	 * the target bean. A {@code null} return value from the post-processor will
+	 * the target bean.
+	 * 任何返回的对象都将被用作bean，而不是实际实例化目标bean。
+	 * A {@code null} return value from the post-processor will
 	 * result in the target bean being instantiated.
+	 * 来自后处理器的返回值将导致目标bean被实例化。
 	 * @param beanClass the class of the bean to be instantiated
+	 *                  将被实例化的bean Class
 	 * @param beanName the name of the bean
+	 *                 bean名称
 	 * @return the bean object to use instead of a default instance of the target bean, or {@code null}
+	 * 返回: 要使用的bean对象，而不是目标bean的默认实例，或{@code null}
 	 * @see InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation
 	 */
 	@Nullable
 	protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
 		for (BeanPostProcessor bp : getBeanPostProcessors()) {
+
+			// 如果bp是InstantiationAwareBeanPostProcessor类型
 			if (bp instanceof InstantiationAwareBeanPostProcessor) {
 				InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
 				/*
@@ -1211,6 +1249,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				  postProcessorBeforeInstantiation方法。
 				  所以此处会是调用AOP代理功能的第一处，[在bean的实例化之前]。
 				 */
+				// 调用实例化之前后置处理方法
 				Object result = ibp.postProcessBeforeInstantiation(beanClass, beanName);
 				if (result != null) {
 					return result;

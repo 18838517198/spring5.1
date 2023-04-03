@@ -1007,6 +1007,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Return the list of BeanPostProcessors that will get applied
 	 * to beans created with this factory.
+	 * 返回BeanPostProcessor列表,将会应用到bean，被工厂创建的
 	 */
 	public List<BeanPostProcessor> getBeanPostProcessors() {
 		return this.beanPostProcessors;
@@ -1554,23 +1555,38 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Resolve the bean class for the specified bean definition,
+	 * 解析指定bean定义的bean类，
 	 * resolving a bean class name into a Class reference (if necessary)
+	 * 将bean类名解析为类引用(如果需要)
 	 * and storing the resolved Class in the bean definition for further use.
+	 * 并将解析后的类存储在bean定义中以供进一步使用。
 	 * @param mbd the merged bean definition to determine the class for
+	 *            用于确定类的合并bean定义
 	 * @param beanName the name of the bean (for error handling purposes)
+	 *                 bean的名称(用于错误处理)
 	 * @param typesToMatch the types to match in case of internal type matching purposes
+	 *                     在进行内部类型匹配时要匹配的类型
 	 * (also signals that the returned {@code Class} will never be exposed to application code)
+	 *                     也表示返回的{@code Class}将永远不会暴露给应用程序代码)
 	 * @return the resolved bean class (or {@code null} if none)
+	 * 返回: 解析的bean类(or {@code null} if none)
 	 * @throws CannotLoadBeanClassException if we failed to load the class
+	 * 抛出: CannotLoadBeanClassException 如果加载类失败
 	 */
 	@Nullable
 	protected Class<?> resolveBeanClass(RootBeanDefinition mbd, String beanName, Class<?>... typesToMatch)
 			throws CannotLoadBeanClassException {
 
 		try {
+
 			if (mbd.hasBeanClass()) {
 				return mbd.getBeanClass();
 			}
+
+			/*
+			  当运行未知的Java程序的时候，该程序可能有恶意代码（删除系统文件、重启系统等），
+			  为了防止运行恶意代码对系统产生影响，需要对运行的代码的权限进行控制，这时候就要启用Java安全管理器。
+			 */
 			if (System.getSecurityManager() != null) {
 				return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)
 						() -> doResolveBeanClass(mbd, typesToMatch), getAccessControlContext());
@@ -1578,6 +1594,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			else {
 				return doResolveBeanClass(mbd, typesToMatch);
 			}
+
 		}
 		catch (PrivilegedActionException pae) {
 			ClassNotFoundException ex = (ClassNotFoundException) pae.getException();

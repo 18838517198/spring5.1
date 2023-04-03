@@ -53,20 +53,34 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	  实现对应的一些后置处理器的相关方法，来辅助我们在某个时间节点上完成代理这一项工作。针对Spring它的接口，我们写几个实现类注到容器里面，
 	  不是我们主动调用,而是由容器去调用。
 	 */
+
+
 	/**
 	 * Apply this BeanPostProcessor <i>before the target bean gets instantiated</i>.
+	 * 在目标bean实例化之前应用这个BeanPostProcessor
 	 * The returned bean object may be a proxy to use instead of the target bean,
+	 * 返回的bean对象可能是一个代理去用于代替目标bean,
 	 * effectively suppressing default instantiation of the target bean.
-	 * <p>If a non-null object is returned by this method, the bean creation process
-	 * will be short-circuited. The only further processing applied is the
+	 * 有效的阻止目标bean的默认实例化
+	 * <p>If a non-null object is returned by this method,
+	 * 如果此方法返回一个非空对象，
+	 * the bean creation process
+	 * will be short-circuited.
+	 * bean创建过程将会被短路。
+	 * The only further processing applied is the
 	 * {@link #postProcessAfterInitialization} callback from the configured
 	 * {@link BeanPostProcessor BeanPostProcessors}.
+	 * 应用的唯一进一步处理是从配置的BeanPostProcessors的回调方法postProcessAfterInitialization。
 	 * <p>This callback will be applied to bean definitions with their bean class,
+	 * 此回调将应用于bean定义及其bean类
 	 * as well as to factory-method definitions in which case the returned bean type
 	 * will be passed in here.
+	 * 以及工厂方法定义，在这种情况下，返回的bean类型将被传递到这里。
 	 * <p>Post-processors may implement the extended
 	 * {@link SmartInstantiationAwareBeanPostProcessor} interface in order
 	 * to predict the type of the bean object that they are going to return here.
+	 * 后处理程序可以实现扩展
+	 * SmartInstantiationAwareBeanPostProcessor接口，以预测它们将在这里返回的bean对象的类型。
 	 * <p>The default implementation returns {@code null}.
 	 * @param beanClass the class of the bean to be instantiated
 	 * @param beanName the name of the bean

@@ -250,7 +250,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
-	// --实例化前postProcess
+	// 实例化前postProcess
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
 		Object cacheKey = getCacheKey(beanClass, beanName);
@@ -348,17 +348,29 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	/**
 	 * Build a cache key for the given bean class and bean name.
+	 * 为给定的bean类和bean名称构建缓存键。
 	 * <p>Note: As of 4.2.3, this implementation does not return a concatenated
 	 * class/name String anymore but rather the most efficient cache key possible:
-	 * a plain bean name, prepended with {@link BeanFactory#FACTORY_BEAN_PREFIX}
-	 * in case of a {@code FactoryBean}; or if no bean name specified, then the
-	 * given bean {@code Class} as-is.
+	 * 注意:从4.2.3开始，这个实现不再返回连接的class/name String，而是尽可能地返回最有效的缓存键:
+	 * a plain bean name,
+	 * 简单的bean名称，
+	 * prepended with {@link BeanFactory#FACTORY_BEAN_PREFIX}
+	 * in case of a {@code FactoryBean};
+	 * 如果是FactoryBean,则前置&
+	 * or if no bean name specified,
+	 * 或者如果没有指定bean名称，
+	 * then the given bean {@code Class} as-is.
+	 * 给定bean Class原样。
 	 * @param beanClass the bean class
 	 * @param beanName the bean name
 	 * @return the cache key for the given class and name
 	 */
 	protected Object getCacheKey(Class<?> beanClass, @Nullable String beanName) {
+		// beanName不为null
 		if (StringUtils.hasLength(beanName)) {
+
+			// isAssignableFrom 判断当前的Class对象所表示的类，是不是参数中传递的Class对象所表示的类的父类，
+			// 超接口，或者是相同的类型。是则返回true，否则返回false。
 			return (FactoryBean.class.isAssignableFrom(beanClass) ?
 					BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName);
 		}

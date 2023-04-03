@@ -29,7 +29,7 @@ import org.springframework.lang.Nullable;
 /**
  * Interface for factories that can create Spring AOP Advisors from classes
  * annotated with AspectJ annotation syntax.
- *
+ * 工厂接口，能够从注解类中根据AspectJ注解语法创建Spring AOP Advisors。
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 2.0

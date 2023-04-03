@@ -317,6 +317,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	/**
 	 * Return the target type of this bean definition, if known
 	 * (either specified in advance or resolved on first instantiation).
+	 * 返回此bean定义的目标类型，如果已知的话(要么提前指定，要么在第一次实例化时解析)。
 	 * @since 3.2.2
 	 */
 	@Nullable

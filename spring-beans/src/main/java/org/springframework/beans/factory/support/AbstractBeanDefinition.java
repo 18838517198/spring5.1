@@ -421,6 +421,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return whether this definition specifies a bean class.
+	 * 返回该定义是否指定了一个bean class。
 	 * @see #getBeanClass()
 	 * @see #setBeanClass(Class)
 	 * @see #resolveBeanClass(ClassLoader)
@@ -978,6 +979,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Return whether this bean definition is 'synthetic', that is,
 	 * not defined by the application itself.
+	 * 返回此bean定义是否是“合成的”，即不是由应用程序本身定义的。
 	 */
 	public boolean isSynthetic() {
 		return this.synthetic;
