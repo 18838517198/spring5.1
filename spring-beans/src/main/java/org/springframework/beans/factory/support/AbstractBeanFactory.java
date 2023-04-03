@@ -375,32 +375,40 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// 检查RootBeanDefinition
 				checkMergedBeanDefinition(mbd, beanName, args);
 
-				//-----------研究中----------
-				// Guarantee initialization of beans that the current bean depends on.
 				/*
-				  @DependsOn注解可以定义在类和方法上，意思是我这个组件要依赖于另一个组件，也就是说被依赖的组件会比该组件先注册到IOC容器中。
+				  @DependsOn注解可以定义在类和方法上，
+				  意思是我这个组件要依赖于另一个组件，也就是说被依赖的组件会比该组件先注册到IOC容器中。
 				  因为bean的初始化过程中很可能会用到某些属性，而某些属性很可能是动态配置的，并且配置成依赖于其他的bean，那么这个时候就有必要
 				  先加载依赖的bean，所以，在Spring的加载顺序中，在初始化某一个bean的时候首先会初始化这个bean所对应的依赖。
 				 */
+				// Guarantee initialization of beans that the current bean depends on.
+				// 保证当前bean所依赖的bean初始化。
 				String[] dependsOn = mbd.getDependsOn();
-				//若存在依赖则需要递归实例化依赖的bean
 				if (dependsOn != null) {
+					// 解析所有依赖
 					for (String dep : dependsOn) {
+
+						// 判断beanName和它所依赖的dep之间是否存在循环依赖关系
 						if (isDependent(beanName, dep)) {
+							// 抛出循环依赖关系异常
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
-						//缓存依赖调用
+
+						// 对dep,beanName之间的依赖关系的建立，方便下一次判断循环依赖
 						registerDependentBean(dep, beanName);
 						try {
+							// 初始化依赖的Bean
 							getBean(dep);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"'" + beanName + "' depends on missing bean '" + dep + "'", ex);
 						}
+
 					}
 				}
+
 
 				/*
 				  我们都知道，在Spring中存在着不同的scope，其中默认的是singleton,但是还有些其他的配置诸如prototype,

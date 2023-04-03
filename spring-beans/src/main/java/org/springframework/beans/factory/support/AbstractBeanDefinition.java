@@ -614,6 +614,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the bean names that this bean depends on.
+	 * 返回此bean所依赖的bean名称。
 	 */
 	@Override
 	@Nullable

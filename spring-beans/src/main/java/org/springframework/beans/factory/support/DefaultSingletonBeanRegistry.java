@@ -126,9 +126,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private final Map<String, Set<String>> containedBeanMap = new ConcurrentHashMap<>(16);
 
 	/** Map between dependent bean names: bean name to Set of dependent bean names. */
+    // bean名称 to 依赖bean名称的集合
 	private final Map<String, Set<String>> dependentBeanMap = new ConcurrentHashMap<>(64);
 
 	/** Map between depending bean names: bean name to Set of bean names for the bean's dependencies. */
+	// bean名称 to Bean依赖项的Bean名称的集合。
 	private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
 
 
@@ -501,20 +503,27 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Register a dependent bean for the given bean,
 	 * to be destroyed before the given bean is destroyed.
+	 * 为给定的bean注册一个依赖bean，在给定的bean被销毁之前销毁它。
 	 * @param beanName the name of the bean
+	 *                 bean的名称
 	 * @param dependentBeanName the name of the dependent bean
+	 *                          依赖的bean名称
 	 */
 	public void registerDependentBean(String beanName, String dependentBeanName) {
 		String canonicalName = canonicalName(beanName);
 
 		synchronized (this.dependentBeanMap) {
 			Set<String> dependentBeans =
+					// 如果不存在canonicalName,则创建一个canonicalName to Set的映射。表示value 依赖 key
+					// dependentBeanName依赖beanName
 					this.dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
+			// 如果dependentBeans包含dependentBeanName,则返回false
 			if (!dependentBeans.add(dependentBeanName)) {
 				return;
 			}
 		}
 
+		// 注册反向依赖集合，即dependentBeanName依赖beanName
 		synchronized (this.dependenciesForBeanMap) {
 			Set<String> dependenciesForBean =
 					this.dependenciesForBeanMap.computeIfAbsent(dependentBeanName, k -> new LinkedHashSet<>(8));
@@ -524,34 +533,50 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 	/**
 	 * Determine whether the specified dependent bean has been registered as
-	 * dependent on the given bean or on any of its transitive dependencies.
+	 * dependent on the given bean
+	 * 确定是否给定的bean所指定依赖的bean已经注册
+	 * or on any of its transitive dependencies.
+	 * 或者它的任何传递依赖项。
 	 * @param beanName the name of the bean to check
+	 *                 检查的bean名称
 	 * @param dependentBeanName the name of the dependent bean
+	 *                          所依赖的bean名称
 	 * @since 4.0
 	 */
+	// 返回true，则抛出BeanCreationException的循环依赖异常
 	protected boolean isDependent(String beanName, String dependentBeanName) {
 		synchronized (this.dependentBeanMap) {
+			// 判断dependentBeanName是否依赖beanName
 			return isDependent(beanName, dependentBeanName, null);
 		}
 	}
 
 	private boolean isDependent(String beanName, String dependentBeanName, @Nullable Set<String> alreadySeen) {
+		// alreadySeen
 		if (alreadySeen != null && alreadySeen.contains(beanName)) {
 			return false;
 		}
+		// 解析为规范Name
 		String canonicalName = canonicalName(beanName);
+
+		// 获取 依赖beanName的Beans
 		Set<String> dependentBeans = this.dependentBeanMap.get(canonicalName);
+		// 若没有依赖Bean的集合，返回false
 		if (dependentBeans == null) {
 			return false;
 		}
+
+		// 若有依赖Bean的集合，并且集合中包含dependentBeanName，表示dependentBeanName也依赖Bean，则出现循环依赖，返回true
 		if (dependentBeans.contains(dependentBeanName)) {
 			return true;
 		}
+		// 如何依赖Bean的集合中不包括dependentBeanName,则不代表集合中的其他元素不与Bean有循环依赖关系
 		for (String transitiveDependency : dependentBeans) {
 			if (alreadySeen == null) {
 				alreadySeen = new HashSet<>();
 			}
 			alreadySeen.add(beanName);
+			// 继续递归  (dependentBeanName是否依赖transitiveDependency)
 			if (isDependent(transitiveDependency, dependentBeanName, alreadySeen)) {
 				return true;
 			}
