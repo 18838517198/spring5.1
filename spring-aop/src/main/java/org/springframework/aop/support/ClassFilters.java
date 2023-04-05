@@ -25,6 +25,7 @@ import org.springframework.util.ObjectUtils;
 
 /**
  * Static utility methods for composing {@link ClassFilter ClassFilters}.
+ * 用户组合的ClassFilters静态实用方法
  *
  * @author Rod Johnson
  * @author Rob Harrop
