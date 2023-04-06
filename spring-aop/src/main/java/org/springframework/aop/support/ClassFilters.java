@@ -39,10 +39,15 @@ public abstract class ClassFilters {
 
 	/**
 	 * Match all classes that <i>either</i> (or both) of the given ClassFilters matches.
+	 * 匹配所有ClassFilters中两者之一(或两者都)匹配的类。
 	 * @param cf1 the first ClassFilter
+	 *            第一个ClassFilter
 	 * @param cf2 the second ClassFilter
+	 *            第二个ClassFilter
 	 * @return a distinct ClassFilter that matches all classes that either
+	 * 返回: 一个截然不同的匹配所有类的ClassFilter
 	 * of the given ClassFilter matches
+	 * 对于给定的ClassFilter匹配两个之一
 	 */
 	public static ClassFilter union(ClassFilter cf1, ClassFilter cf2) {
 		Assert.notNull(cf1, "First ClassFilter must not be null");
@@ -52,9 +57,13 @@ public abstract class ClassFilters {
 
 	/**
 	 * Match all classes that <i>either</i> (or all) of the given ClassFilters matches.
+	 * 匹配所有ClassFilters中两者之一(或两者都)匹配的类。
 	 * @param classFilters the ClassFilters to match
+	 *                     匹配的ClassFilters
 	 * @return a distinct ClassFilter that matches all classes that either
+	 * 返回: 一个截然不同的匹配所有类的ClassFilter
 	 * of the given ClassFilter matches
+	 * 对于给定的ClassFilter匹配两个之一。
 	 */
 	public static ClassFilter union(ClassFilter[] classFilters) {
 		Assert.notEmpty(classFilters, "ClassFilter array must not be empty");
@@ -63,10 +72,14 @@ public abstract class ClassFilters {
 
 	/**
 	 * Match all classes that <i>both</i> of the given ClassFilters match.
+	 * 匹配所有ClassFilters中两者都匹配的类。
 	 * @param cf1 the first ClassFilter
+	 *            第一个ClassFilter
 	 * @param cf2 the second ClassFilter
+	 *            第二个ClassFilter
 	 * @return a distinct ClassFilter that matches all classes that both
 	 * of the given ClassFilter match
+	 * 返回: 一个截然不同的匹配所有classesClassFilter,给定的两个ClassFilter匹配
 	 */
 	public static ClassFilter intersection(ClassFilter cf1, ClassFilter cf2) {
 		Assert.notNull(cf1, "First ClassFilter must not be null");
@@ -76,9 +89,12 @@ public abstract class ClassFilters {
 
 	/**
 	 * Match all classes that <i>all</i> of the given ClassFilters match.
+	 * 匹配所有ClassFilters中所有都匹配的类。
 	 * @param classFilters the ClassFilters to match
+	 *                     去匹配的ClassFilter
 	 * @return a distinct ClassFilter that matches all classes that both
 	 * of the given ClassFilter match
+	 * 返回: 一个截然不同的匹配所有classesClassFilter,给定的两个ClassFilter匹配
 	 */
 	public static ClassFilter intersection(ClassFilter[] classFilters) {
 		Assert.notEmpty(classFilters, "ClassFilter array must not be empty");
@@ -88,6 +104,7 @@ public abstract class ClassFilters {
 
 	/**
 	 * ClassFilter implementation for a union of the given ClassFilters.
+	 * 对于给定的ClassFilters的一个联合ClassFilter实现
 	 */
 	@SuppressWarnings("serial")
 	private static class UnionClassFilter implements ClassFilter, Serializable {
@@ -129,6 +146,7 @@ public abstract class ClassFilters {
 
 	/**
 	 * ClassFilter implementation for an intersection of the given ClassFilters.
+	 * 给定的ClassFilters的一个交叉的ClassFilter实现
 	 */
 	@SuppressWarnings("serial")
 	private static class IntersectionClassFilter implements ClassFilter, Serializable {

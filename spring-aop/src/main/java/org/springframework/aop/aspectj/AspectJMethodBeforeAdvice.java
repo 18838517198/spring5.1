@@ -24,6 +24,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * Spring AOP advice that wraps an AspectJ before method.
+ * 在方法之前封装AspectJ的Spring AOP通知
  *
  * @author Rod Johnson
  * @author Adrian Colyer
