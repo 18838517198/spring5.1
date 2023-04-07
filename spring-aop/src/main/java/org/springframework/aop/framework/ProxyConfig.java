@@ -22,7 +22,9 @@ import org.springframework.util.Assert;
 
 /**
  * Convenience superclass for configuration used in creating proxies,
+ * 用于创建代理的方便超类设置，
  * to ensure that all proxy creators have consistent properties.
+ * 去确保所有代理创建器有相同的属性。
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

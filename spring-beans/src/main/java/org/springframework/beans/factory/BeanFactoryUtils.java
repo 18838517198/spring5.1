@@ -208,23 +208,40 @@ public abstract class BeanFactoryUtils {
 
 	/**
 	 * Get all bean names for the given type, including those defined in ancestor
-	 * factories. Will return unique names in case of overridden bean definitions.
+	 * factories.
+	 * 获得所有给定类型bean 名称，包括那些被定义在祖先工厂的bean。
+	 * Will return unique names in case of overridden bean definitions.
+	 * 在重写bean定义的情况下将返回唯一的名称。
 	 * <p>Does consider objects created by FactoryBeans if the "allowEagerInit"
-	 * flag is set, which means that FactoryBeans will get initialized. If the
+	 * flag is set, which means that FactoryBeans will get initialized.
+	 * 如果设置了“allowEagerInit”标志，则考虑由FactoryBeans创建的对象，这意味着FactoryBeans将被初始化。
+	 * If the
 	 * object created by the FactoryBean doesn't match, the raw FactoryBean itself
-	 * will be matched against the type. If "allowEagerInit" is not set,
+	 * will be matched against the type.
+	 * 如果FactoryBean创建的对象不匹配，原始FactoryBean本身将根据类型进行匹配。
+	 * If "allowEagerInit" is not set,
 	 * only raw FactoryBeans will be checked (which doesn't require initialization
 	 * of each FactoryBean).
+	 * 如果没有设置“allowEagerInit”，则只检查原始的FactoryBean(这不需要初始化每个FactoryBean)。
 	 * @param lbf the bean factory
+	 *            bean工厂
 	 * @param includeNonSingletons whether to include prototype or scoped beans too
 	 * or just singletons (also applies to FactoryBeans)
+	 *                             是否也包括原型或作用域bean，
+	 *                             还是只包括单例bean(也适用于FactoryBeans)
 	 * @param allowEagerInit whether to initialize <i>lazy-init singletons</i> and
 	 * <i>objects created by FactoryBeans</i> (or by factory methods with a
 	 * "factory-bean" reference) for the type check. Note that FactoryBeans need to be
 	 * eagerly initialized to determine their type: So be aware that passing in "true"
 	 * for this flag will initialize FactoryBeans and "factory-bean" references.
+	 *                       是否为类型检查初始化lazy-init单例和由FactoryBeans
+	 *                       (或由带有“factory-bean”引用的工厂方法)创建的对象。
+	 *                       请注意，FactoryBeans需要被急切地初始化以确定它们的类型:
+	 *                       因此请注意，为这个标志传递“true”将初始化FactoryBeans和“factory-bean”引用。
 	 * @param type the type that beans must match
+	 *             beans必须匹配的类型
 	 * @return the array of matching bean names, or an empty array if none
+	 * 返回: 匹配bean的名称数组，或空数组
 	 * @see ListableBeanFactory#getBeanNamesForType(Class, boolean, boolean)
 	 */
 	public static String[] beanNamesForTypeIncludingAncestors(

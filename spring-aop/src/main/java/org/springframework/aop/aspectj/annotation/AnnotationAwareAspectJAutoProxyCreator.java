@@ -103,7 +103,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 		if (this.aspectJAdvisorsBuilder != null) {
 			/*
 			  AnnotationAwareAspectJAutoProxyCreator间接继承了AbstractAdvisorAutoProxyCreator，
-			  在实现获取增强的方法中除了保留父类的获取配置文件中定义的增强外，同时添加了获取
+			  在实现获取建议器的方法中除了保留父类的获取配置文件中定义的增强外，同时添加了获取
 			  Bean的注解增强的功能，那么其实现正是由this.aspectJAdvisorBuilder.buildAspectJAdvisors()
 			  来实现的。
 			 */
@@ -128,9 +128,12 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 
 	/**
 	 * Check whether the given aspect bean is eligible for auto-proxying.
+	 * 检查给定的切面bean是否符合auto-proxying.
 	 * <p>If no &lt;aop:include&gt; elements were used then "includePatterns" will be
 	 * {@code null} and all beans are included. If "includePatterns" is non-null,
 	 * then one of the patterns must match.
+	 * 如果没有<aop:include></aop:include>元素被使用，那么“includePatterns”将是{@code null}，
+	 * 所有的bean都被包括在内。如果"includePatterns"是非空的，那么必须有一个模式匹配。
 	 */
 	protected boolean isEligibleAspectBean(String beanName) {
 		if (this.includePatterns == null) {

@@ -75,9 +75,13 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 
 	/**
 	 * Look for AspectJ-annotated aspect beans in the current bean factory,
+	 * 查找@AspectJ的切面Beans在当前bean工厂，
 	 * and return to a list of Spring AOP Advisors representing them.
+	 * 并且返回一个表示它们的Spring AOP 建议器列表
 	 * <p>Creates a Spring Advisor for each AspectJ advice method.
+	 * 为每一个AspectJ建议方法创建一个Spring 建议器
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
+	 * 返回: 建议器beans的列表
 	 * @see #isEligibleBean
 	 */
 	public List<Advisor> buildAspectJAdvisors() {
@@ -86,13 +90,13 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
-				if (aspectNames == null) {
+				if (aspectNames == null) {  // 双重检查锁
 					List<Advisor> advisors = new ArrayList<>();
 					aspectNames = new ArrayList<>();
 					// 获取所有的beanName
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
-					// 循环所有的beanName找出对应的增强方法
+					// 循环所有的beanName找出对应的建议器
 					for (String beanName : beanNames) {
 						// 不合法的bean则略过，由子类定义规则，默认返回true
 						if (!isEligibleBean(beanName)) {
@@ -112,8 +116,8 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
-								// 解析标记AspectJ注解中的增强方法
-								// 最为重要也最为繁杂的就是增强器的获取。
+								// 解析标记AspectJ注解中的建议器
+								// 最为重要也最为繁杂的就是建议器的获取。
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
 									this.advisorsCache.put(beanName, classAdvisors);
