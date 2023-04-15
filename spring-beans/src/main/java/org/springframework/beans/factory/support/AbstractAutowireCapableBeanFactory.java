@@ -152,10 +152,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	/**
 	 * The name of the currently created bean, for implicit dependency registration
 	 * on getBean etc invocations triggered from a user-specified Supplier callback.
+	 * 当前创建bean的名称，用于用户指定的Supplier回调触发的getBean()等调用上的隐式依赖注册。
 	 */
 	private final NamedThreadLocal<String> currentlyCreatedBean = new NamedThreadLocal<>("Currently created bean");
 
 	/** Cache of unfinished FactoryBean instances: FactoryBean name to BeanWrapper. */
+	// 缓存未完成的FactoryBean实例: 工厂Bean名称-BeanWrapper
 	private final ConcurrentMap<String, BeanWrapper> factoryBeanInstanceCache = new ConcurrentHashMap<>();
 
 	/** Cache of candidate factory methods per factory class. */
@@ -588,14 +590,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			throws BeanCreationException {
 
 		// Instantiate the bean.
+
 		BeanWrapper instanceWrapper = null;
 		if (mbd.isSingleton()) {
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
+
 		if (instanceWrapper == null) {
-			//根据指定bean使用对应的策略创建新的实例，如工厂方法、构造函数自动注入、简单初始化
+			// 根据指定bean使用对应的策略创建新的实例，如工厂方法、构造函数自动注入、简单初始化
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+
 		Object bean = instanceWrapper.getWrappedInstance();
 		Class<?> beanType = instanceWrapper.getWrappedClass();
 		if (beanType != NullBean.class) {
@@ -1275,11 +1280,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/**
 	 * Create a new instance for the specified bean, using an appropriate instantiation strategy:
+	 * 为指定的bean创建一个新的实例，使用一个合适的实例化策略:
 	 * factory method, constructor autowiring, or simple instantiation.
+	 * 工厂方法，构造函数自动装配，或简单实例化。
 	 * @param beanName the name of the bean
+	 *                 bean名称
 	 * @param mbd the bean definition for the bean
+	 *            bean的定义
 	 * @param args explicit arguments to use for constructor or factory method invocation
+	 *             显式参数，用于构造器或工厂方法调用
 	 * @return a BeanWrapper for the new instance
+	 * 返回: 一个新实例BeanWrapper
 	 * @see #obtainFromSupplier
 	 * @see #instantiateUsingFactoryMethod
 	 * @see #autowireConstructor
@@ -1287,20 +1298,22 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) {
 		// Make sure bean class is actually resolved at this point.
-		//解析class
+		// 确保此时bean类实际上已被解析。
 		Class<?> beanClass = resolveBeanClass(mbd, beanName);
 
+		// beanClass不为null && beanClass不是公共类 && 不允许公共构造函数和方法，则抛出异常BeanCreationException
 		if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
 			throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 					"Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
 		}
 
+		// Supplier函数式接口,提供创建实例的回调
 		Supplier<?> instanceSupplier = mbd.getInstanceSupplier();
 		if (instanceSupplier != null) {
 			return obtainFromSupplier(instanceSupplier, beanName);
 		}
 
-		//如果工厂方法不为空则使用工厂方法初始化策略
+		// 如果工厂方法不为空则使用工厂方法初始化策略
 		if (mbd.getFactoryMethodName() != null) {
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
@@ -1354,18 +1367,24 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/**
 	 * Obtain a bean instance from the given supplier.
+	 * 获取一个bean实例，从给定的supplier
 	 * @param instanceSupplier the configured supplier
+	 *                         设置的supplier
 	 * @param beanName the corresponding bean name
+	 *                 对应的bean名称
 	 * @return a BeanWrapper for the new instance
+	 * 返回: 一个新实例的BeanWrapper
 	 * @since 5.0
 	 * @see #getObjectForBeanInstance
 	 */
 	protected BeanWrapper obtainFromSupplier(Supplier<?> instanceSupplier, String beanName) {
 		Object instance;
 
+		// 获取正在创建的bean名称
 		String outerBean = this.currentlyCreatedBean.get();
 		this.currentlyCreatedBean.set(beanName);
 		try {
+			// 获取回调方法返回的实例
 			instance = instanceSupplier.get();
 		}
 		finally {

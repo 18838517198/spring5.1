@@ -194,14 +194,21 @@ public abstract class ReflectionUtils {
 
 	/**
 	 * Make the given constructor accessible, explicitly setting it accessible
-	 * if necessary. The {@code setAccessible(true)} method is only called
+	 * if necessary.
+	 * 使给定的构造函数可访问，必要时显式地将其设置为可访问。
+	 * The {@code setAccessible(true)} method is only called
 	 * when actually necessary, to avoid unnecessary conflicts with a JVM
 	 * SecurityManager (if active).
+	 * setAccessible(true)方法仅在实际需要时调用，
+	 * 以避免与JVM SecurityManager(如果是激活的)发生不必要的冲突。
 	 * @param ctor the constructor to make accessible
+	 *             使可访问的构造器
 	 * @see java.lang.reflect.Constructor#setAccessible
 	 */
 	@SuppressWarnings("deprecation")  // on JDK 9
 	public static void makeAccessible(Constructor<?> ctor) {
+		// Modifier修饰符
+		// (如果构造器的修饰符不是Public或类的修饰符不是public)并且构造器不可访问
 		if ((!Modifier.isPublic(ctor.getModifiers()) ||
 				!Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
 			ctor.setAccessible(true);

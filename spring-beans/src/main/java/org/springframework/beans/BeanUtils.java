@@ -157,22 +157,35 @@ public abstract class BeanUtils {
 
 	/**
 	 * Convenience method to instantiate a class using the given constructor.
+	 * 使用给定构造函数实例化类的方便方法
 	 * <p>Note that this method tries to set the constructor accessible if given a
 	 * non-accessible (that is, non-public) constructor, and supports Kotlin classes
 	 * with optional parameters and default values.
+	 * 注意，如果给定一个不可访问(即非公共)的构造函数，此方法将尝试将构造函数设置为可访问的，并且支持Kotlin类
+	 * 具有可选参数和默认值。
 	 * @param ctor the constructor to instantiate
+	 *             用于实例化的构造器
 	 * @param args the constructor arguments to apply (use {@code null} for an unspecified
 	 * parameter if needed for Kotlin classes with optional parameters and default values)
+	 *             要应用的构造函数参数
+	 *             (如果需要带有可选参数和默认值的Kotlin类，则使用{@code null}作为未指定的参数)
 	 * @return the new instance
+	 * 返回: 新的实例
 	 * @throws BeanInstantiationException if the bean cannot be instantiated
+	 * 抛出 BeanInstantiationException 如果bean不能够被实例化
 	 * @see Constructor#newInstance
 	 */
 	public static <T> T instantiateClass(Constructor<T> ctor, Object... args) throws BeanInstantiationException {
 		Assert.notNull(ctor, "Constructor must not be null");
 		try {
+
+			// 使构造器可访问
 			ReflectionUtils.makeAccessible(ctor);
+
+			// 如果探测器探测是Kotlin反射且类是KotlinType，则使用Kotlin代理实例类，否则使用构造器实例化。
 			return (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(ctor.getDeclaringClass()) ?
 					KotlinDelegate.instantiateClass(ctor, args) : ctor.newInstance(args));
+
 		}
 		catch (InstantiationException ex) {
 			throw new BeanInstantiationException(ctor, "Is it an abstract class?", ex);
