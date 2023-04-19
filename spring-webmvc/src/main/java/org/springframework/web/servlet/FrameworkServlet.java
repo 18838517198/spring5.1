@@ -214,6 +214,14 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private boolean enableLoggingRequestDetails = false;
 
 	/** WebApplicationContext for this servlet. */
+	// 就表示一个Spring容器
+	/*
+		  就相当于在DispatcherServlet内部有一个Spring容器
+		  DispatcherServlet收到请求之后，根据请求的一部分路径(/app/*下)去找到Controller里面的方法。
+		  而Controller就是一个一个Bean对象。所以DispatcherServlet拿到请求之后就会去自己的Spring容器里面
+		  找Controller的Bean。可能还有其他Bean，比如Service的Bean，但是DispatcherServlet只要Controller
+		  的Bean。
+	 */
 	@Nullable
 	private WebApplicationContext webApplicationContext;
 
@@ -527,6 +535,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		long startTime = System.currentTimeMillis();
 
 		try {
+			// 创建内部Spring容器
 			this.webApplicationContext = initWebApplicationContext();
 			initFrameworkServlet();
 		}
@@ -558,6 +567,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see #setContextConfigLocation
 	 */
 	protected WebApplicationContext initWebApplicationContext() {
+		// 获得ContextLoaderListener存的父容器
 		WebApplicationContext rootContext =
 				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		WebApplicationContext wac = null;
@@ -588,9 +598,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 		if (wac == null) {
 			// No context instance is defined for this servlet -> create a local one
+			// xml会在这里创建
 			wac = createWebApplicationContext(rootContext);
 		}
 
+		// refreshEventReceived它会在容器加载完设置为true(通过事件onApplicationEvent)
+		// Springboot在这初始化组件
 		if (!this.refreshEventReceived) {
 			// Either the context is not a ConfigurableApplicationContext with refresh
 			// support or the context injected at construction time had already been
@@ -656,15 +669,23 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 					"': custom WebApplicationContext class [" + contextClass.getName() +
 					"] is not of type ConfigurableWebApplicationContext");
 		}
+		/*
+		  ConfigurableWebApplicationContext继承了ConfigurableApplicationContext和WebApplicationContext,
+		  而ConfigurableApplicationContext和WebApplicationContext都继承了ApplicationContext。
+		  其实就是拿到Spring容器对象。
+		 */
 		ConfigurableWebApplicationContext wac =
 				(ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);
 
+		// 只是实例了context,还没有设置beanFactory等属性。
 		wac.setEnvironment(getEnvironment());
 		wac.setParent(parent);
 		String configLocation = getContextConfigLocation();
+		// 拿到web.xml中配置的spring.xml配置文件
 		if (configLocation != null) {
 			wac.setConfigLocation(configLocation);
 		}
+		// 再去refresh，真正地启动容器。就回去扫描解析spring.xml配置文件中配置的Bean
 		configureAndRefreshWebApplicationContext(wac);
 
 		return wac;

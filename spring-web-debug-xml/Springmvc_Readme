@@ -1,0 +1,16 @@
+1.启动tomcat
+2.tomcat解析web.xml
+3.load-on-startup:1-tomcat启动的时候生成DispatcherServlet 0-接收到某个请求的时候才会创建并初始化
+4.tomcat创建出DispatcherServlet之后，调用DispatcherServlet的初始化方法，即init()方法。而DispatcherServlet
+的父类的父类ServletException重写了Servlet接口的init()方法。init()-->创建Spring容器。启动tomcat过程中间就会创建
+DispatcherServlet中的Spring容器。Spring容器里面的Bean对象也会创建出来。
+
+
+http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解析/zhouyu,创建一个/zhouyu应用。
+/zhouyu应用里面有什么？有servlet。tomcat只关心你的应用里面定义了那些servlet。tomcat就是个servlet容器。
+然后在/zhouyu应用里面有个DispatcherServlet。如果你要访问DispatcherServlet,你请求的格式应该是这个样子：
+/app/*。然后这个请求就会交给DispatcherServlet来进行处理。然后DispatcherServlet就会看/app/后面的请求
+是什么，如world,他就会找到某个Controller里面某个方法，看有没有这个映射，如果有就执行这个方法，就得到一个结果，
+最后把这个结果返回给浏览器。找不到就会返回给浏览器404。这些东西，都是DispatcherServlet所返回的。
+
+#4
