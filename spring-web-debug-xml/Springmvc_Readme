@@ -3,8 +3,21 @@
 3.load-on-startup:1-tomcat启动的时候生成DispatcherServlet 0-接收到某个请求的时候才会创建并初始化
 4.tomcat创建出DispatcherServlet之后，调用DispatcherServlet的初始化方法，即init()方法。而DispatcherServlet
 的父类的父类ServletException重写了Servlet接口的init()方法。init()-->创建Spring容器。启动tomcat过程中间就会创建
-DispatcherServlet中的Spring容器。Spring容器里面的Bean对象也会创建出来。
-
+DispatcherServlet中的 Spring容器--->DispatcherServlet的initStrategies()【除了创建Spring,还会创建其他的，用于
+后续处理请求的时候起到作用。如处理请求和方法映射的HandleMapping】--->
+①创建RequestMappingHandlerMapping(HandleMapping类型...)
+的Bean对象--->而这个Bean对象(RequestMappingHandlerMapping)创建过程中会执行具有Bean特性的afterPropertiesSet()【
+InitializingBean】方法。--->afterPropertiesSet()就会去找到当前Spring容器里面一些Controller--->解析Controller中的方法，
+注册进mappingRegistry（请求URL:Method）
+②创建BeanNameUrlHandlerMapping.initApplicationContext()--->只解析名字以"/"开头的Bean，并当作一个handler,也注册
+到handlerMap里面保存起来。如@Component("/test") // 映射关系"/test":handler  ,那么找到这个Bean调什么方法呢？实现Controller(springmvc提供)
+                        public class ZhouyuBeanNameController implements Controller{
+                          @Override
+                          public ModelAndView handleRequest(HttpServletRequest request,HttpServletResponse response){
+                            return null;
+                          }
+                        }
+就可以在handleRequest方法里面写我们处理请求的逻辑。
 
 http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解析/zhouyu,创建一个/zhouyu应用。
 /zhouyu应用里面有什么？有servlet。tomcat只关心你的应用里面定义了那些servlet。tomcat就是个servlet容器。
@@ -13,4 +26,4 @@ http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解�
 是什么，如world,他就会找到某个Controller里面某个方法，看有没有这个映射，如果有就执行这个方法，就得到一个结果，
 最后把这个结果返回给浏览器。找不到就会返回给浏览器404。这些东西，都是DispatcherServlet所返回的。
 
-#4
+#5
