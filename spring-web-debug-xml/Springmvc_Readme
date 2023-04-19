@@ -8,9 +8,11 @@ DispatcherServlet中的 Spring容器--->DispatcherServlet的initStrategies()【�
 ①创建RequestMappingHandlerMapping(HandleMapping类型...)
 的Bean对象--->而这个Bean对象(RequestMappingHandlerMapping)创建过程中会执行具有Bean特性的afterPropertiesSet()【
 InitializingBean】方法。--->afterPropertiesSet()就会去找到当前Spring容器里面一些Controller--->解析Controller中的方法，
-注册进mappingRegistry（请求URL:Method）
-②创建BeanNameUrlHandlerMapping.initApplicationContext()--->只解析名字以"/"开头的Bean，并当作一个handler,也注册
-到handlerMap里面保存起来。如@Component("/test") // 映射关系"/test":handler  ,那么找到这个Bean调什么方法呢？实现Controller(springmvc提供)
+注册进mappingRegistry(（请求URL:Method）)
+②创建BeanNameUrlHandlerMapping.initApplicationContext()--->
+AbstractDetectingUrlHandlerMapping.detectHandlers
+只解析名字以"/"开头的Bean，并当作一个handler,也注册
+到handlerMap里面保存起来。如@Component("/test") // 映射关系(（"/test":Bean对象）)  ,那么找到这个Bean调什么方法呢？实现Controller(springmvc提供)
                         public class ZhouyuBeanNameController implements Controller{
                           @Override
                           public ModelAndView handleRequest(HttpServletRequest request,HttpServletResponse response){
@@ -18,6 +20,12 @@ InitializingBean】方法。--->afterPropertiesSet()就会去找到当前Spring�
                           }
                         }
 就可以在handleRequest方法里面写我们处理请求的逻辑。
+③RequestMappingHandlerAdapter.afterPropertiesSet()初始化逻辑：找加了@ControllerAdvice的Bean
+再会找到Bean对象里面加了@InitBinder、@ModelAttribute的方法。找出来先存着。到后面处理请求，这些处理的方法就会起到作用。
+而不是等到处理请求的时候我才找。那样会影响处理请求的效率。
+...其他
+核心是RequestMappingHandlerMapping 和 RequestMappingHandlerAdapter。
+5.tomcat正常启动完，就可以处理请求了。
 
 http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解析/zhouyu,创建一个/zhouyu应用。
 /zhouyu应用里面有什么？有servlet。tomcat只关心你的应用里面定义了那些servlet。tomcat就是个servlet容器。
@@ -26,4 +34,4 @@ http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解�
 是什么，如world,他就会找到某个Controller里面某个方法，看有没有这个映射，如果有就执行这个方法，就得到一个结果，
 最后把这个结果返回给浏览器。找不到就会返回给浏览器404。这些东西，都是DispatcherServlet所返回的。
 
-#5
+#6
