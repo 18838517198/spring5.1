@@ -35,7 +35,7 @@ http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解�
 是什么，如world,他就会找到某个Controller里面某个方法，看有没有这个映射，如果有就执行这个方法，就得到一个结果，
 最后把这个结果返回给浏览器。找不到就会返回给浏览器404。这些东西，都是DispatcherServlet所返回的。
 
-#6
+#10
 
 一个DispatcherServlet对应一个app。而一个上下文可以对应多个app，比如：http://localhost:8080/zhouyu/app/hello
 /zhouyu是一个上下文，而/app就是一个app应用。而每个app应用里面都包含一个spring.xml的Spring容器（WebApplicationContext）。
@@ -51,3 +51,9 @@ http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解�
 那么app,app1中的容器称为子容器，外部公用的容器叫做父容器。
 对于大部分应用来说，有一个容器就已经是足够的了。所以不需要父容器。只需要DispatcherServlet中的一个容器就够了。也就是不用配置Listener。
 就简简单单地配置一个DispatcherServlet就行了。
+
+DispatcherServlet-->接收请求-->path,request parameters,header,body
+                 -->path-->@RequestMapping Method
+                        -->Bean对象
+                 -->（解析参数，参数绑定）-->执行方法-->返回值解析
+

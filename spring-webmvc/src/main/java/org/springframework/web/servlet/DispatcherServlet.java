@@ -1009,6 +1009,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HttpServletRequest processedRequest = request;
+		// 包括了handler以及定义的拦截器
 		HandlerExecutionChain mappedHandler = null;
 		boolean multipartRequestParsed = false;
 
@@ -1023,13 +1024,25 @@ public class DispatcherServlet extends FrameworkServlet {
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
+				// 根据请求path找到对应的handlerExecutionChain(包含了HandlerMethod与HandlerInterceptor)
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
+					// 报404
 					noHandlerFound(processedRequest, response);
 					return;
 				}
 
 				// Determine handler adapter for the current request.
+				// 根据HandlerMethod找到最匹配的HandlerAdapter
+				// 如果是@Controller中的某个方法，那么对应的就是RequestMappingHandlerAdapter
+				// 如果是一个HttpRequestHandler对象，那么对应的就是HttpRequestHandlerAdapter
+				// 如果是一个接口Controller对象，那么对应的就是SimpleControllerHandlerAdapter
+				// 如果是一个HandlerFunction对象，那么对应的就是HandlerFunctionAdapter。
+				// mapperHandler.getHandler()返回的是一个Object对象
+				/*
+				  ~Adapter ..的适配器。
+				  意思前面~代表类型，然后这个类型的适配器会对传入的Object进行强转执行类型中的逻辑。
+				 */
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
@@ -1042,18 +1055,23 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				// 调用HandlerInterceptor的applyPreHandle方法，如果返回false，那么调用流程结束。
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
+				// 调用真正的方法，比如Controller中的某个方法，得到ModelAndView对象。
+				// 返回固定的ModelAndView对象。
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
 
+				// 设置默认视图
 				applyDefaultViewName(processedRequest, mv);
+				// 调用HandlerInterceptor的applyPostHandler方法
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1064,6 +1082,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			// 先渲染视图，然后调用HandlerInterceptor的triggerAfterCompletion方法
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1091,6 +1110,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 	/**
 	 * Do we need view name translation?
+	 * 如果没有视图，给你设置默认视图。
 	 */
 	private void applyDefaultViewName(HttpServletRequest request, @Nullable ModelAndView mv) throws Exception {
 		if (mv != null && !mv.hasView()) {
@@ -1125,6 +1145,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
+			// 渲染视图
 			render(mv, request, response);
 			if (errorView) {
 				WebUtils.clearErrorRequestAttributes(request);

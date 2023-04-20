@@ -776,9 +776,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
 
 		ModelAndView mav;
+		// 预先对request进行一些检查，一般用不到
 		checkRequest(request);
 
 		// Execute invokeHandlerMethod in synchronized block if required.
+		// session同步锁，同一个session请求做同步，默认为false
 		if (this.synchronizeOnSession) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -851,10 +853,15 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
+			// 找出@InitBinder方法（方法并没有执行） 2023-04-20转成处理方法参数中Date，格式自定义
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
+
+			// ModelFactory表示用来创建Model对象的，比如Model中有那些attribute，都会由ModelFactory来控制
 			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
 
+
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+			// 设置方法参数解析器，返回值解析器
 			if (this.argumentResolvers != null) {
 				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
 			}
