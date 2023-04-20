@@ -1,5 +1,6 @@
 1.启动tomcat
-2.tomcat解析web.xml
+2.tomcat解析web.xml(先去解析<Listener />节点,再会解析<servlet />节点)
+（3）.listener.init()执行listener的初始化逻辑，创建出来一个spring容器，并存到servletContext（Map集合）
 3.load-on-startup:1-tomcat启动的时候生成DispatcherServlet 0-接收到某个请求的时候才会创建并初始化
 4.tomcat创建出DispatcherServlet之后，调用DispatcherServlet的初始化方法，即init()方法。而DispatcherServlet
 的父类的父类ServletException重写了Servlet接口的init()方法。init()-->创建Spring容器。启动tomcat过程中间就会创建
@@ -35,3 +36,18 @@ http://localhost:8080/zhouyu/app/world 当tomcat接收到这个请求后会解�
 最后把这个结果返回给浏览器。找不到就会返回给浏览器404。这些东西，都是DispatcherServlet所返回的。
 
 #6
+
+一个DispatcherServlet对应一个app。而一个上下文可以对应多个app，比如：http://localhost:8080/zhouyu/app/hello
+/zhouyu是一个上下文，而/app就是一个app应用。而每个app应用里面都包含一个spring.xml的Spring容器（WebApplicationContext）。
+那么在web.xml中再配置一个DispatcherServlet1，对应app1，http://localhost:8080/zhouyu/app1/hello
+那么就会再包含一个spring1.xml的Spring容器。
+如果这两个容器都扫描项目中同一个包，那么就会创建各自的Bean对象。相当于复制了一份Spring上下文的Bean。
+比如，对于app,我只扫描controller,service这两个包，而对于app1，我只扫描controller1,service这两个包，
+这样就实现了多版本。但是完全可以在类上加一个路径来实现多版本。为什么要用上面呢？
+其实在于说明对于service这个包中的Bean，我并不需要多版本。那么我怎么做到只有一个service包中的Bean呢，且app和app1可以共用。
+那就再搞一个spring容器，然后再指定一个配置文件，那么这个配置文件只扫描service这个包，这样service的Bean就只有一份。
+那么到现在就有三个spring容器了。那么app、app1注入service中的Bean，怎么实现呢？那么就需要在app、app1中的容器和外部的spring容器之间，
+绑定一个父子关系。就是如果我自己没有service的Bean，就回去父容器找service的Bean。
+那么app,app1中的容器称为子容器，外部公用的容器叫做父容器。
+对于大部分应用来说，有一个容器就已经是足够的了。所以不需要父容器。只需要DispatcherServlet中的一个容器就够了。也就是不用配置Listener。
+就简简单单地配置一个DispatcherServlet就行了。

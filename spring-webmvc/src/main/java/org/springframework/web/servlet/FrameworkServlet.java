@@ -598,7 +598,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 		if (wac == null) {
 			// No context instance is defined for this servlet -> create a local one
-			// xml会在这里创建
+			// xml会在这里创建,rootContext是传入的父容器
 			wac = createWebApplicationContext(rootContext);
 		}
 
@@ -679,6 +679,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		// 只是实例了context,还没有设置beanFactory等属性。
 		wac.setEnvironment(getEnvironment());
+		// 绑定一个父子关系
 		wac.setParent(parent);
 		String configLocation = getContextConfigLocation();
 		// 拿到web.xml中配置的spring.xml配置文件
