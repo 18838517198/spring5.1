@@ -1,12 +1,10 @@
 package controller;
 
-import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,9 +28,20 @@ public class FirstController {
 		return "hello world!";
 	}
 
+//	@ModelAttribute("user")
+//	public String addString(@RequestParam("user") String value){
+//		return value;
+//	}
+
 	@GetMapping("/date")
 	@ResponseBody
-	public String date(Date date){
-		return date.toString();
+	public String date(Date date, Model model){
+		return model.toString();
+	}
+
+	@GetMapping("/hello")
+	@ResponseBody
+	public String test(String name){
+		return "hello world! "+name;
 	}
 }
