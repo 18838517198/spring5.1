@@ -1,16 +1,22 @@
 package controller;
 
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Controller
-public class FirstController {
+public class FirstController{
 
 	// 写在当前Controller，则只在这个Controller有用
 	// 如果定义全局，查看DateControllerAdvice
@@ -23,7 +29,6 @@ public class FirstController {
 	}
 
 	@GetMapping("/world")
-	@ResponseBody
 	public String sayHello(){
 		return "hello world!";
 	}
@@ -39,9 +44,10 @@ public class FirstController {
 		return model.toString();
 	}
 
-	@GetMapping("/hello")
+	@GetMapping("/hello/{id}")
 	@ResponseBody
-	public String test(String name){
-		return "hello world! "+name;
+	public String test(@RequestAttribute("XXX") String id){
+		return "hello world! "+id;
 	}
+
 }

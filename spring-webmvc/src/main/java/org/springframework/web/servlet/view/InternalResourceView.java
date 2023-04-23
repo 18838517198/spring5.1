@@ -139,15 +139,21 @@ public class InternalResourceView extends AbstractUrlBasedView {
 			Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		// Expose the model object as request attributes.
+		// 将model设置到request的attribute中
 		exposeModelAsRequestAttributes(model, request);
 
 		// Expose helpers as request attributes, if any.
+		// 设置国际化资源
 		exposeHelpers(request);
 
 		// Determine the path for the request dispatcher.
+		// 防止死循环请求
 		String dispatcherPath = prepareForRendering(request, response);
 
 		// Obtain a RequestDispatcher for the target resource (typically a JSP).
+		// 通过request拿到RequestDispatcher request.getRequestDispatcher("/test.jsp")
+		// RequestDispatcher并不是Springmvc里面的，RequestDispatcher是Servlet规范里面的，专门用来在服务端去转发的
+		// 就是生成一个转发器，到后面的时候进行转发
 		RequestDispatcher rd = getRequestDispatcher(request, dispatcherPath);
 		if (rd == null) {
 			throw new ServletException("Could not get RequestDispatcher for [" + getUrl() +
@@ -168,6 +174,19 @@ public class InternalResourceView extends AbstractUrlBasedView {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Forwarding to [" + getUrl() + "]");
 			}
+			// RequestDispatcher.forward直接转发，就这么简单粗暴【jsp文件需要添加前缀/WEB-INF/和后缀.jsp】
+			// 这里跟Springmvc中的DispatcherServlet是没啥关系的。就是直接http://localhost:8080/zhouyu/WEB-INFO/index.jsp
+			// 而不会加上/app,因为tomcat会直接能访问到jsp，利用了tomcat功能。
+			// 但是如果在浏览器上直接访问http://localhost:8080/zhouyu/WEB-INFO/index.jsp是不行的，tomcat是有限制的。
+			// 想要直接访问.jsp的话，就把.jsp移出WEB-INFO目录。但也不是Springmvc中DispatcherServlet所管的，因为它只管*.jsp请求，是匹配不到的。
+			// 所以不要把index.jsp带/app访问。应该直接http://localhost:8080/zhouyu/index.jsp,交给tomcat去处理就好了。
+			// 带/app，http://localhost:8080/zhouyu/app/index.jsp就交给DispatcherServlet去处理了，是匹配不到的。
+			// 项目是部署到tomcat中的，所以是能通过tomcat访问到的。
+			// 或者把web.xml文件中DispatcherServlet映射的/app/*改为/app/,然后把index.jsp放在webapp目录下新建的
+			// app目录下，也能够访问到。
+			// 总之，要直接访问jsp文件，就不能交给DispatcherServlet处理
+			// tomcat本身有一个JspServlet,专门处理jsp的，jsp，*.jsp，*.jspx都会匹配。所以应该让JspServlet去匹配请求路径，
+			// 而不是DispatcherServlet去匹配请求路径。
 			rd.forward(request, response);
 		}
 	}
@@ -204,6 +223,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
 		String path = getUrl();
 		Assert.state(path != null, "'url' not set");
 
+		// 防止死循环请求
 		if (this.preventDispatchLoop) {
 			String uri = request.getRequestURI();
 			if (path.startsWith("/") ? uri.equals(path) : uri.equals(StringUtils.applyRelativePath(uri, path))) {
