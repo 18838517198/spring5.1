@@ -65,6 +65,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		  将动态方法织入类中
 		  但是如果没有需要动态改变的方法，为了方便直接反射就可以了
 		 */
+		// 判断当前BeanDefinition对应的beanClass中是否存在@Lookup的方法
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
@@ -94,6 +95,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		}
 		else {
 			// Must generate CGLIB subclass.
+			// 如果存在@Lookup，则会生成一个代理对象
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
