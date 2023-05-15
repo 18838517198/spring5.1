@@ -588,7 +588,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// Last step: publish corresponding event.
 				// 完成刷新过程，通知生命周期处理器lifecycleProcessor刷新过程，同时发出
-				//ContextRefreshEvent通知别人
+				// ContextRefreshEvent通知别人
 				finishRefresh();
 			}
 
