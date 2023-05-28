@@ -864,6 +864,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 				else {
+					// 🌌如果beanName对应的bean不是FactoryBean,而是普通的bean，通过beanName获取bean实例
 					getBean(beanName);
 				}
 			}

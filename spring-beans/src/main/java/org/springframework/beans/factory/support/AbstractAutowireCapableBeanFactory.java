@@ -548,7 +548,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// 这一行真正的实例化、属性填充、初始化
-			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
+			Object beanInstance = doCreateBean(beanName, mbdToUse, args); // 🌌实际创建bean
 			if (logger.isTraceEnabled()) {
 				logger.trace("Finished creating instance of bean '" + beanName + "'");
 			}
@@ -599,7 +599,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		if (instanceWrapper == null) {
 			// 根据指定bean使用对应的策略创建新的实例，如工厂方法、构造函数自动注入、简单初始化
-			instanceWrapper = createBeanInstance(beanName, mbd, args);
+			instanceWrapper = createBeanInstance(beanName, mbd, args); // 🌌
 		}
 
 		// 普通对象
@@ -660,7 +660,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 在这里，可能会有代理Bean，getEarlyBeanReference，此方法在AbstractAutoProxyCreator有实现。
 			// 如果直接把原始Bean暴露出去，那么代理Bean就不生效了。
 			// 循环依赖-添加到三级缓存
-			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
+			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean)); // 🌌解决循环依赖最关键所在() -> getEarlyBeanReference(beanName, mbd, bean)
 		}
 
 		// Initialize the bean instance.
@@ -1044,12 +1044,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		  对bean再一次依赖引用，主要应用SmartInstantiationAwareBeanPostProcessor
 		  其中我们熟知的AOP就是在这里将advice动态织入bean中，若没有则直接返回bean，不做任何处理
 		 */
-		Object exposedObject = bean;
+		Object exposedObject = bean; // 🌌
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
-					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);
+					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName); // 🌌暴露代理对象
 				}
 			}
 		}
@@ -1886,7 +1886,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				deepCopy.add(pv);
 			}
 			else {
-				String propertyName = pv.getName();
+				String propertyName = pv.getName(); // 🌌获取属性的名字
 				Object originalValue = pv.getValue();
 				Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
 				Object convertedValue = resolvedValue;
@@ -1921,7 +1921,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Set our (possibly massaged) deep copy.
 		try {
-			bw.setPropertyValues(new MutablePropertyValues(deepCopy));
+			bw.setPropertyValues(new MutablePropertyValues(deepCopy)); // 🌌完成赋值操作
 		}
 		catch (BeansException ex) {
 			throw new BeanCreationException(

@@ -199,7 +199,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	@Override
 	public Object getBean(String name) throws BeansException {
-		return doGetBean(name, null, null, false);
+		return doGetBean(name, null, null, false); // 🌌此方法是实际获取bean的方法，也是触发依赖注入的方法
 	}
 
 	@Override
@@ -279,7 +279,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		 */
 		// Eagerly check singleton cache for manually registered singletons.
 		// 急切地检查单例缓存用于手动注册单例【：依次检查一二三级缓存，有或无则直接返回。其中三级缓存(存放ObjectFactory)存在时，则从工厂bean取出singletonObject后放入二级缓存】
-		Object sharedInstance = getSingleton(beanName);
+		Object sharedInstance = getSingleton(beanName);// 🌌提前检查单例缓存中是否有手动注册的单例对象，跟循环依赖有关
 
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
@@ -417,7 +417,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Create bean instance.
 
 				// singleton模式
-				if (mbd.isSingleton()) {
+				if (mbd.isSingleton()) { // 🌌创建bean的实例对象
 
 					// getSingleton(String beanName,ObjectFactory<?> singletonFactory)
 					// ObjectFactory SPI 由服务消费端提供的接口服务，但是按照服务端所指定的接口
@@ -425,7 +425,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// 这里是懒创建，只有在工厂的getObject方法被调用时，才执行createBean,返回一个Bean实例。这里的lamda表达式只是一个构造方法所提供的对象。
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
-							return createBean(beanName, mbd, args);
+							return createBean(beanName, mbd, args);// 🌌为给定的合并后BeanDefinition(和参数)创建一个bean实例
 						}
 						catch (BeansException ex) {
 							// Explicitly remove instance from singleton cache: It might have been put there
