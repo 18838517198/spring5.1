@@ -537,11 +537,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			// Tell the subclass to refresh the internal bean factory.
 			// 初始化BeanFactory，并进行XML文件读取
+			// 创建DefaultListableBeanFactory并且加载xml中bean的定义信息BeanDefinition，放在beanDefinitionMap中
 			// 对于AnnotationConfigApplicationContext,则保证refreshed状态的唯一，不能有多个容器刷新，最后直接返回已经实例化的beanFactory。
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
-			// 对BeanFactory进行各种功能填充
+			// 对BeanFactory进行各种功能填充。相当于初始化BeanFactory
 			prepareBeanFactory(beanFactory);
 
 			try {
@@ -564,11 +565,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
-				// 为上下文初始化Message源，即不同语言的消息体，国际化处理
+				// 为上下文初始化Message源，即不同语言的消息体，国际化处理(单一功能)。
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
-				// 初始化应用消息广播器，并放入"applicationEventMulticaster" bean中
+				// 初始化应用消息广播器，并放入"applicationEventMulticaster"，bean中，方便后来发布监听事件
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
@@ -948,6 +949,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Instantiate all remaining (non-lazy-init) singletons.
 		/*
 		  初始化所有非懒加载的单例
+		  重点！refresh方法中最关键的一步，之前都是对创建单例Bean的前置工作。
 		 */
 		beanFactory.preInstantiateSingletons();
 	}

@@ -1,0 +1,42 @@
+反射：
+先获取Class对象：三种方式
+ Class clazz = Class.forName("完全限定名");
+ Class clazz = 对象.getClass();
+ Class clazz = 类.class;
+Constructor ctor = class.getDeclareConstructor();
+Object obj = ctor.newInstance(); // 完成对象的实例化
+
+PostProcessor //后置处理器，用于扩展
+
+<bean id=datasource class=com.alibaba.druid.pool.DruidDatasource>
+  <property name=username value=${jdbc.username}> //变量在实例化之前一定要被替换 --> BeanFactoryPostProcessor对BeanDefinition进行处理
+</>
+
+看源码有什么好处:为所欲为
+
+Environment  env properties
+为了方便使用，在容器创建的时候会提前将系统的相关属性加载到StandardEnvironment对象中，方便后续使用。
+
+如果我需要在bean对象的创建过程中，详细了解每一个步骤完成的进度，我应该怎么做？在不同阶段要做不同处理工作该怎么办？
+观察者模式：监听器、监听事件
+
+DefaultListableBeanFactory
+
+看源码1.看注释 2.猜测 3.抓主要步骤，细节后看，不必每个方法都点进去，会疯，见好就收 4.整体脉络有了之后再去抠细节
+5.看源码的时候先从应用入手，应用的点理解透了之后再说原理，再说源码。
+应用怎么用？注解、xml。定义了bean的定义信息。BeanDefinition接口 容器根据BeanDefinition信息来把需要的对象创建出来。
+xml:dom4j、Sax -> document对象 -> 父子节点 ->BeanDefinition
+注解:注解 -> class -> BeanDefinition
+==>解析的方式不同，都会合并到BeanDefinition
+
+DefaultListableBeanFactory 容器
+
+源码比较难的地方是你需要一层一层去捋一堆的接口，或者一堆的抽象类。抽象类的继承关系会变得非常复杂，在找具体的实现的时候，
+可能不太容易找。这就是核心点！
+
+PostProcessor：后置处理器，增强器  -①BeanFactoryPostProcessor -②BeanPostProcessor
+BeanDefinition保留原始值（占位符）  ----BeanFactoryPostProcessor(实现类PlaceholderConfigurerSupport)---->   最终的BeanDefinition对象
+当中的BeanFactoryPostProcessor可以有一个，也可以有n多个。
+而BeanDefinitionMap中Bean定义信息中的占位符在refresh()中的invokeBeanFactoryPostProcessors(beanFactory)处理。
+所以BeanFactoryPostProcessor是对BeanDefinition的处理。
+
