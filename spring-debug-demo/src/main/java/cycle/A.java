@@ -3,10 +3,9 @@ package cycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 
 @Component
-public class A {
+public class A{
 	@Autowired
 	private B b;
 

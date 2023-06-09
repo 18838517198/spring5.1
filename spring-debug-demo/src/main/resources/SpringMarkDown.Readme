@@ -40,3 +40,64 @@ BeanDefinition保留原始值（占位符）  ----BeanFactoryPostProcessor(实�
 而BeanDefinitionMap中Bean定义信息中的占位符在refresh()中的invokeBeanFactoryPostProcessors(beanFactory)处理。
 所以BeanFactoryPostProcessor是对BeanDefinition的处理。
 
+BeanFactoryPostProcessor下有一个子接口BeanDefinitionRegistryPostProcessor,其一个重要实现子类ConfigurationClassPostProcessor
+ConfigurationClassPostProcessor -> Springboot自动装配原理
+
+Aware接口 容器帮我们调用set方法，设置进BeanFactory、ApplicationContext属性。所以同一的规范接口，然后实现此功能。
+Aware接口无任何方法，同Serializable接口，但它有很多实现接口：BeanFactoryAware、ApplicationContextAware。
+BeanFactoryAware中的 setBeanFactory和ApplicationContextAware中的setApplicationContext同实际对象中的set属性的
+setBeanFactory和setApplicationContext无任何区别。所以在当前对象实现BeanFactoryAware，ApplicationContextAware
+使用@Autowire也可以实现此赋值功能，但是如果不使用注解，只使用xml呢？
+
+实例化（createBeanInstance）之后赋值操作分为：用户自定义属性赋值(populateBean)、容器对象赋值(invokeAwareMethods)
+赋值操作之后是否获取到一个完整的bean对象？下面所做的都是bean的扩展实现。如下：
+BeanPostProcessor：执行初始化前置处理方法，初始化步骤（执行初始化调用方法），执行初始化后置处理方法
+
+AOP是IOC的一个扩展实现
+AOP实现原理：动态代理：jdk、cglib
+所以点开BeanPostProcessor的实现类，其中AbstractAutoProxyCreator是最终实现代理的类。而其中的postProcessBeforeInitialization
+直接返回bean不做任何处理，而postProcessAfterInitialization方法中的wrapIfNecessary中的createProxy中的 proxyFactory.getProxy
+中的createAopProxy().getProxy再点进去发现是一个接口里面的方法，就要找具体的子类实现了。所以看到了CglibAopProxy和JdkDynamicAopProxy
+
+执行初始化前置处理方法，初始化步骤（执行初始化调用方法），执行初始化后置处理方法
+初始化步骤（执行初始化调用方法invokeInitMethods）：①是否实现了InitializingBean接口、②xml: init-method(一般不写)
+InitializingBean接口-是->afterPropertiesSet 给容器最后一次机会来进行对Bean赋值或调用操作
+
+
+执行初始化后置处理方法之后--》使用对象--》销毁对象（一般不会用，只有在容器关闭的时候才销毁对象）
+
+@PostConstruct--相当于执行初始化方法
+@PreDestroy
+
+@Autowired
+@Value
+
+xml-->标准的bean的生命周期流程
+注解-->完成注解的功能-->推翻xml重来还是扩展实现-->扩展-->通过BeanPostProcessor的实现AutowiredAnnotationBeanPostProcessor
+:       this.autowiredAnnotationTypes.add(Autowired.class);
+ 		this.autowiredAnnotationTypes.add(Value.class);
+
+同上 @PreDestroy： InitDestroyAnnotationBeanPostProcessor的实现子类CommonAnnotationBeanPostProcessor找到一个注解：
+：      public CommonAnnotationBeanPostProcessor() {
+       		setOrder(Ordered.LOWEST_PRECEDENCE - 3);
+       		setInitAnnotationType(PostConstruct.class);
+       		setDestroyAnnotationType(PreDestroy.class);
+       		ignoreResourceType("javax.xml.ws.WebServiceContext");
+       	}
+      因为CommonAnnotationBeanPostProcessor implements InstantiationAwareBeanPostProcessor，所以调用时机不太一样，但都
+      属于BeanPostProcessor
+
+BeanFactory和FactoryBean的区别
+共同点：都是用来创建对象的
+不同点：FactoryBean --- 1、isSingleton判断是否是单例对象 2、getObjectType获取对象类型 3、getObject用户可以按照自己任意的方式来创建对象
+      BeanFactory：包含非常多异常琐碎的步骤，但是是标准化流程，流水线.而FactoryBean是私人定制（new 代理 反射任意创建，开心就好，最终获取到一个对象就可以了，不需要经过Spring Bean生命周期这一系列异常麻烦的流程）
+
+
+源码方法论：
+1.不要忽略源码中的注释
+2.先梳理脉络，再扣细节
+3.大胆猜测，小心验证
+4.见名知意
+5.使用插件(translate)
+6.坚持看，坚持看，坚持看
+7.先捋出一条脉络，再扣细节。今天就看xml解析，明天就看注解的解析，后天就看bean对象怎么封装的，大后天就看BeanPostProcessor....
