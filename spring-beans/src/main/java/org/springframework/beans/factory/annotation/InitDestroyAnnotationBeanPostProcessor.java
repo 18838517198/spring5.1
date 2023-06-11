@@ -94,9 +94,13 @@ public class InitDestroyAnnotationBeanPostProcessor
 	/**
 	 * Specify the init annotation to check for, indicating initialization
 	 * methods to call after configuration of a bean.
+	 * 指定要检查的init注释，指示在配置bean后调用的初始化方法。
 	 * <p>Any custom annotation can be used, since there are no required
 	 * annotation attributes. There is no default, although a typical choice
 	 * is the JSR-250 {@link javax.annotation.PostConstruct} annotation.
+	 * 可以使用任何自定义注解，因为没有必需的注解属性。
+	 * 没有默认值，尽管这是一个典型的选择
+	 * 是JSR-250 {@link javax.annotation.PostConstruct}注解。
 	 */
 	public void setInitAnnotationType(Class<? extends Annotation> initAnnotationType) {
 		this.initAnnotationType = initAnnotationType;

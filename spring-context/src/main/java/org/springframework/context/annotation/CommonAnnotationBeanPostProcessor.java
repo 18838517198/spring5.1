@@ -79,15 +79,27 @@ import org.springframework.util.StringValueResolver;
  * annotations in the {@code javax.annotation} package. These common Java
  * annotations are supported in many Java EE 5 technologies (e.g. JSF 1.2),
  * as well as in Java 6's JAX-WS.
+ * ---
+ * {@link org.springframework.beans.factory.config。BeanPostProcessor}实现支持开箱即用的常见Java注解，
+ * 特别是{@code javax.annotation}中的JSR-250注释。注释}包。这些常见的Java许多Java EE 5技术(例如JSF 1.2)以及
+ * Java 6的JAX-WS都支持注释。
  *
  * <p>This post-processor includes support for the {@link javax.annotation.PostConstruct}
  * and {@link javax.annotation.PreDestroy} annotations - as init annotation
  * and destroy annotation, respectively - through inheriting from
  * {@link InitDestroyAnnotationBeanPostProcessor} with pre-configured annotation types.
+ * ---
+ * 这个后处理器包括对{@link javax.annotation.PostConstruct}和{@link javax.annotation.PreDestroy}注解的支持。
+ * 分别就像init注解和销毁注解一样——通过继承
+ * {@link InitDestroyAnnotationBeanPostProcessor}带有预配置的注释类型。
  *
  * <p>The central element is the {@link javax.annotation.Resource} annotation
  * for annotation-driven injection of named beans, by default from the containing
  * Spring BeanFactory, with only {@code mappedName} references resolved in JNDI.
+ * ---
+ * 中心元素是{@link javax.annotation.Resource}注解对于注解驱动的命名bean注入，
+ * 默认从Spring BeanFactory含有在JNDI中只解析了{@code mappedName}引用。
+ *
  * The {@link #setAlwaysUseJndiLookup "alwaysUseJndiLookup" flag} enforces JNDI lookups
  * equivalent to standard Java EE 5 resource injection for {@code name} references
  * and default names as well. The target beans can be simple POJOs, with no special
@@ -194,9 +206,14 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 	/**
 	 * Create a new CommonAnnotationBeanPostProcessor,
+	 * 创建一个新的CommonAnnotationBeanPostProcessor，
 	 * with the init and destroy annotation types set to
 	 * {@link javax.annotation.PostConstruct} and {@link javax.annotation.PreDestroy},
 	 * respectively.
+	 * 分别把initAnnotationType和destroyAnnotationType设置成
+	 * javax.annotation.PostConstruct和javax.annotation.PreDestroy。
+	 *
+	 *
 	 */
 	public CommonAnnotationBeanPostProcessor() {
 		setOrder(Ordered.LOWEST_PRECEDENCE - 3);
