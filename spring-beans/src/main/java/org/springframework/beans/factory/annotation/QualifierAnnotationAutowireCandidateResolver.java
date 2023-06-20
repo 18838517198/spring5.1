@@ -341,13 +341,13 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	}
 
 	/**
-	 * Determine whether the given dependency declares a value annotation.
+	 * Determine whether the given dependency declares a value annotation. 【确定给定依赖项是否声明值注解。】
 	 * @see Value
 	 */
 	@Override
 	@Nullable
 	public Object getSuggestedValue(DependencyDescriptor descriptor) {
-		Object value = findValue(descriptor.getAnnotations());
+		Object value = findValue(descriptor.getAnnotations()); //value=${a_name} ! 第二次getAnnotations()
 		if (value == null) {
 			MethodParameter methodParam = descriptor.getMethodParameter();
 			if (methodParam != null) {

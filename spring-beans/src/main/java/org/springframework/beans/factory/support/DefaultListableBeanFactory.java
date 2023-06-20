@@ -1194,10 +1194,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
 		}
 		else {
-			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
+			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(  // obtainMethodParameter().getParameterAnnotations()
 					descriptor, requestingBeanName);
 			if (result == null) {
-				result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
+				result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter); // !
 			}
 			return result;
 		}
@@ -1215,7 +1215,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 
 			Class<?> type = descriptor.getDependencyType();
-			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
+			/**
+			 * ！
+			 * 此步是关键，即解析出@Value中的占位符
+			 */
+			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor); //value=${a_name} !
 			if (value != null) {
 				if (value instanceof String) {
 					String strVal = resolveEmbeddedValue((String) value);

@@ -599,7 +599,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		if (instanceWrapper == null) {
 			// 根据指定bean使用对应的策略创建新的实例，如工厂方法、构造函数自动注入、简单初始化
-			instanceWrapper = createBeanInstance(beanName, mbd, args); // 🌌
+			/** !
+			 * 经过此步骤，@Value注解的方法已被解析:
+			 * public ValueA(@Value("${a_name}") String name) {
+			 * 		this.name = name;
+			 * 		System.out.println("构造方法ValueA已设置name值:"+name);
+			 * }
+			 */
+			instanceWrapper = createBeanInstance(beanName, mbd, args); // 🌌  !
 		}
 
 		// 普通对象
@@ -1358,11 +1365,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Candidate constructors for autowiring?
 		// 需要根据参数解析构造函数
+		/** ！
+		 * 解析ValueA构造函数
+		 */
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
 		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
 				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
-			//构造函数自动注入
-			return autowireConstructor(beanName, mbd, ctors, args);
+			// 构造函数自动注入
+			return autowireConstructor(beanName, mbd, ctors, args); // !
 		}
 
 		// Preferred constructors for default construction?
@@ -1542,7 +1552,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected BeanWrapper autowireConstructor(
 			String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
 
-		return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
+		return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs); // !
 	}
 
 	/**

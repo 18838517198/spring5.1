@@ -68,11 +68,19 @@ import org.springframework.util.StringUtils;
 /**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} implementation
  * that autowires annotated fields, setter methods and arbitrary config methods.
+ *
+ * ==AutowiredAnnotationBeanPostProcessor
+ * 是BeanPostProcessor的实现，自动装配 带注解字段，setter方法，和任意配置方法。
+ *
  * Such members to be injected are detected through a Java 5 annotation: by default,
  * Spring's {@link Autowired @Autowired} and {@link Value @Value} annotations.
  *
+ * ==这些要注入的成员是通过Java 5注解：默认，Spring的@Autowired和@Value注解。
+ *
  * <p>Also supports JSR-330's {@link javax.inject.Inject @Inject} annotation,
  * if available, as a direct alternative to Spring's own {@code @Autowired}.
+ *
+ * ==也支持JSR-330's @Inject注解，如果可用，作为Spring自己的{@code @Autowired}的直接替代。
  *
  * <p>Only one constructor (at max) of any given bean class may declare this annotation
  * with the 'required' parameter set to {@code true}, indicating <i>the</i> constructor
@@ -162,11 +170,14 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	/**
 	 * Set the 'autowired' annotation type, to be used on constructors, fields,
 	 * setter methods and arbitrary config methods.
+	 * ~【设置'autowired'注解类型，被用于构造函数，字段，setter方法和任意配置方法上。】
 	 * <p>The default autowired annotation type is the Spring-provided {@link Autowired}
 	 * annotation, as well as {@link Value}.
+	 * ~【默认自动注解类型有Spring提供的@Autowired，还有@Value】
 	 * <p>This setter property exists so that developers can provide their own
 	 * (non-Spring-specific) annotation type to indicate that a member is supposed
 	 * to be autowired.
+	 * ~【这个setter属性的存在是为了让开发人员能够提供他们自己的(非spring特定的)注释类型来指示成员应该自动注入。】
 	 */
 	public void setAutowiredAnnotationType(Class<? extends Annotation> autowiredAnnotationType) {
 		Assert.notNull(autowiredAnnotationType, "'autowiredAnnotationType' must not be null");

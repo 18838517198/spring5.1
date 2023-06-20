@@ -42,9 +42,13 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
- * Helper class that encapsulates the specification of a method parameter, i.e. a {@link Method}
+ * Helper class that encapsulates the specification of a method parameter,
+ * i.e. a {@link Method}
  * or {@link Constructor} plus a parameter index and a nested type index for a declared generic
  * type. Useful as a specification object to pass along.
+ *
+ * ==助手类——用于封装方法参数的规范，
+ * 例如，一个{@link Method}或{@link Constructor}加上一个参数索引和一个嵌套的泛型索引。作为规范对象传递是有用的。
  *
  * <p>As of 4.2, there is a {@link org.springframework.core.annotation.SynthesizingMethodParameter}
  * subclass available which synthesizes annotations with attribute aliases. That subclass is used
@@ -540,9 +544,15 @@ public class MethodParameter {
 	 * Return the annotations associated with the specific method/constructor parameter.
 	 */
 	public Annotation[] getParameterAnnotations() {
-		Annotation[] paramAnns = this.parameterAnnotations;
-		if (paramAnns == null) {
-			Annotation[][] annotationArray = this.executable.getParameterAnnotations();
+		/**
+		 * ！
+		 * 此步this.parameterAnnotations=@org.springframework.beans.factory.annotation.Value(value=${a_name})
+		 * 说明MethodParameter已经解析@Value，并且保存在其属性parameterAnnotations中
+		 * 此步是疑惑切入点！！！
+		 */
+		Annotation[] paramAnns = this.parameterAnnotations; //...annotation.Value(value="${a_name}") ④
+		if (paramAnns == null) { // 第一次此值为空 利用jdk api解析出构造器中注解
+			Annotation[][] annotationArray = this.executable.getParameterAnnotations(); // 【annotationArray[0]=@org.springframework.beans.factory.annotation.Value(value=${a_name})】
 			int index = this.parameterIndex;
 			if (this.executable instanceof Constructor &&
 					ClassUtils.isInnerClass(this.executable.getDeclaringClass()) &&
@@ -553,7 +563,7 @@ public class MethodParameter {
 			}
 			paramAnns = (index >= 0 && index < annotationArray.length ?
 					adaptAnnotationArray(annotationArray[index]) : EMPTY_ANNOTATION_ARRAY);
-			this.parameterAnnotations = paramAnns;
+			this.parameterAnnotations = paramAnns; // ! 重点，第一次赋值。
 		}
 		return paramAnns;
 	}

@@ -65,8 +65,8 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Delegate for resolving constructors and factory methods.
- * Performs constructor resolution through argument matching.
+ * Delegate for resolving constructors and factory methods. 【委托来解析构造函数和工厂方法。】
+ * Performs constructor resolution through argument matching. 【通过参数匹配执行构造函数解析。】
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -161,7 +161,7 @@ class ConstructorResolver {
 			}
 
 			if (candidates.length == 1 && explicitArgs == null && !mbd.hasConstructorArgumentValues()) {
-				Constructor<?> uniqueCandidate = candidates[0];
+				Constructor<?> uniqueCandidate = candidates[0]; // ！获取唯一候选构造器
 				if (uniqueCandidate.getParameterCount() == 0) {
 					synchronized (mbd.constructorArgumentLock) {
 						mbd.resolvedConstructorOrFactoryMethod = uniqueCandidate;
@@ -173,7 +173,7 @@ class ConstructorResolver {
 				}
 			}
 
-			// Need to resolve the constructor.
+			// Need to resolve the constructor. 【需要解析这个构造器，意为构造器中有参数】
 			boolean autowiring = (chosenCtors != null ||
 					mbd.getResolvedAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
 			ConstructorArgumentValues resolvedValues = null;
@@ -182,6 +182,7 @@ class ConstructorResolver {
 			if (explicitArgs != null) {
 				minNrOfArgs = explicitArgs.length;
 			}
+
 			else {
 				ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
 				resolvedValues = new ConstructorArgumentValues();
@@ -212,11 +213,11 @@ class ConstructorResolver {
 						if (paramNames == null) {
 							ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
 							if (pnd != null) {
-								paramNames = pnd.getParameterNames(candidate);
+								paramNames = pnd.getParameterNames(candidate);  // ！获取到构造方法中参数名name
 							}
 						}
 						argsHolder = createArgumentArray(beanName, mbd, resolvedValues, bw, paramTypes, paramNames,
-								getUserDeclaredConstructor(candidate), autowiring, candidates.length == 1);
+								getUserDeclaredConstructor(candidate), autowiring, candidates.length == 1);  // !
 					}
 					catch (UnsatisfiedDependencyException ex) {
 						if (logger.isTraceEnabled()) {
@@ -685,8 +686,8 @@ class ConstructorResolver {
 	}
 
 	/**
-	 * Create an array of arguments to invoke a constructor or factory method,
-	 * given the resolved constructor argument values.
+	 * Create an array of arguments to invoke a constructor or factory method, 【创建参数数组以调用构造函数或工厂方法，】
+	 * given the resolved constructor argument values. 【给定已解析的构造函数参数值。】
 	 */
 	private ArgumentsHolder createArgumentArray(
 			String beanName, RootBeanDefinition mbd, @Nullable ConstructorArgumentValues resolvedValues,
@@ -702,7 +703,7 @@ class ConstructorResolver {
 
 		for (int paramIndex = 0; paramIndex < paramTypes.length; paramIndex++) {
 			Class<?> paramType = paramTypes[paramIndex];
-			String paramName = (paramNames != null ? paramNames[paramIndex] : "");
+			String paramName = (paramNames != null ? paramNames[paramIndex] : "");  // ！name
 			// Try to find matching constructor argument value, either indexed or generic.
 			ConstructorArgumentValues.ValueHolder valueHolder = null;
 			if (resolvedValues != null) {
@@ -747,6 +748,11 @@ class ConstructorResolver {
 				args.rawArguments[paramIndex] = originalValue;
 			}
 			else {
+				/**
+				 * 此步是后来起到关键作用的MethodParameter的创建。
+				 * executable=public debug.debugValueAnnotation.ValueA(java.lang.String)
+				 * paramIndex=0
+				 */
 				MethodParameter methodParam = MethodParameter.forExecutable(executable, paramIndex);
 				// No explicit match found: we're either supposed to autowire or
 				// have to fail creating an argument array for the given constructor.
@@ -757,7 +763,7 @@ class ConstructorResolver {
 							"] - did you specify the correct bean references as arguments?");
 				}
 				try {
-					Object autowiredArgument = resolveAutowiredArgument(
+					Object autowiredArgument = resolveAutowiredArgument(  // ! ①
 							methodParam, beanName, autowiredBeanNames, converter, fallback);
 					args.rawArguments[paramIndex] = autowiredArgument;
 					args.arguments[paramIndex] = autowiredArgument;
@@ -839,7 +845,7 @@ class ConstructorResolver {
 	}
 
 	/**
-	 * Template method for resolving the specified argument which is supposed to be autowired.
+	 * Template method for resolving the specified argument which is supposed to be autowired. 【用于解析指定参数的模板方法，该参数应该是自动注入的。】
 	 */
 	@Nullable
 	protected Object resolveAutowiredArgument(MethodParameter param, String beanName,
@@ -854,7 +860,14 @@ class ConstructorResolver {
 			return injectionPoint;
 		}
 		try {
-			return this.beanFactory.resolveDependency(
+			/**
+			 * ！
+			 * 此步new的DependencyDescriptor继承了InjectionPoint,而InjectionPoint中有MethodParameter属性
+			 * 所以传递的param(MethodParameter)即是后来的methodParameter,而其中@Value注解解析保存的parameterAnnotations
+			 * 即是放在MethodParameter的属性——Annotation[] parameterAnnotations中。
+			 * 所以此步param是关键。
+			 */
+			return this.beanFactory.resolveDependency( // ! ②
 					new DependencyDescriptor(param, true), beanName, autowiredBeanNames, typeConverter);
 		}
 		catch (NoUniqueBeanDefinitionException ex) {

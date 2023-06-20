@@ -129,7 +129,7 @@ public class InjectionPoint {
 			return fieldAnnotations;
 		}
 		else {
-			return obtainMethodParameter().getParameterAnnotations();
+			return obtainMethodParameter().getParameterAnnotations(); // ! ③ ⑤
 		}
 	}
 
