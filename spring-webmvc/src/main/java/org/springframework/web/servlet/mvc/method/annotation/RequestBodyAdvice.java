@@ -29,10 +29,12 @@ import org.springframework.lang.Nullable;
  * Object and also allows for processing of the resulting Object before it is
  * passed into a controller method as an {@code @RequestBody} or an
  * {@code HttpEntity} method argument.
+ * 允许在读取请求体并将其转换为对象之前定制请求，也允许在将结果对象作为{@code @RequestBody}或{@code HttpEntity}方法参数传递给控制器方法之前处理它。
  *
  * <p>Implementations of this contract may be registered directly with the
  * {@code RequestMappingHandlerAdapter} or more likely annotated with
  * {@code @ControllerAdvice} in which case they are auto-detected.
+ * 这个契约的实现可以直接用{@code RequestMappingHandlerAdapter}注册，或者更可能用{@code @ControllerAdvice}注释，在这种情况下，它们是自动检测到的。
  *
  * @author Rossen Stoyanchev
  * @since 4.2
@@ -41,6 +43,7 @@ public interface RequestBodyAdvice {
 
 	/**
 	 * Invoked first to determine if this interceptor applies.
+	 * 首先调用以确定该拦截器是否适用。
 	 * @param methodParameter the method parameter
 	 * @param targetType the target type, not necessarily the same as the method
 	 * parameter type, e.g. for {@code HttpEntity<String>}.

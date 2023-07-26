@@ -1,8 +1,11 @@
 package controller;
 
+import entity.User;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -14,6 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class FirstController{
@@ -49,5 +54,20 @@ public class FirstController{
 	public String test(@RequestAttribute("XXX") String id){
 		return "hello world! "+id;
 	}
+
+	@GetMapping("/time")
+	@ResponseBody
+	public String date(){
+		return "7/15";
+	}
+
+	@RequestMapping("/advice")
+	@ResponseBody
+	public String adviceTest(@RequestBody String hello){
+		System.out.println("hello:"+hello);
+		return hello;
+	}
+
+
 
 }

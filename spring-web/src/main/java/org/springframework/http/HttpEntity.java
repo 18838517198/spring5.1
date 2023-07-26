@@ -22,6 +22,7 @@ import org.springframework.util.ObjectUtils;
 
 /**
  * Represents an HTTP request or response entity, consisting of headers and body.
+ * 表示一个HTTP请求或响应实体，由报头和正文组成。
  *
  * <p>Typically used in combination with the {@link org.springframework.web.client.RestTemplate},
  * like so:
